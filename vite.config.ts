@@ -7,9 +7,4 @@ import manifest from './public/manifest.config'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), crx(manifest)],
-  server: {
-    cors: {
-      origin: [/chrome-extension:\/\//],
-    },
-  },
 })
