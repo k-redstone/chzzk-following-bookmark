@@ -3,4 +3,6 @@
 
 @theme {
   --breakpoint-chzzk: 75rem;
+  --color-background: rgb(20, 21, 23);
+  --color-foreground: rgb(30, 32, 34);
 }

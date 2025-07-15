@@ -14,6 +14,6 @@ export default {
       },
     ],
     host_permissions: ['https://chzzk.naver.com/*'],
-    permissions: [],
+    permissions: ['storage'],
   }),
 }
