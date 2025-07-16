@@ -7,6 +7,7 @@ export default function useClickAway<T extends HTMLElement | null>(
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
+        console.log('away')
         onAway()
       }
     }

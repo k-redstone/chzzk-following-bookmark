@@ -49,24 +49,33 @@ export default function App() {
             />
           )}
 
-          <div className="text-content-05 flex justify-between px-2">
+          <div className="text-content-05 flex items-center justify-between px-2">
             <h2 className={`text-xs font-extrabold`}>팔로잉 북마크</h2>
             <div className="flex gap-x-1">
-              <button type="button">
-                <Plus className="h-5 w-5" />
+              <button
+                type="button"
+                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
+              >
+                <Plus className="h-4.5 w-4.5 hover:text-white" />
               </button>
-              <button type="button">
+              <button
+                type="button"
+                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
+              >
                 <FolderPlus
-                  className="h-5 w-5"
+                  className="h-4.5 w-4.5 hover:text-white"
                   onClick={() => setCreateFolderModalOpen(true)}
                 />
               </button>
-              <button type="button">
-                <ChevronDown className="h-5 w-5" />
+              <button
+                type="button"
+                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
+              >
+                <ChevronDown className="h-4.5 w-4.5 hover:text-white" />
               </button>
             </div>
           </div>
-          <div className={``}>
+          <div className={`flex flex-col gap-y-1`}>
             {bookmarkData?.folders.map((folder) => (
               <FolderItem
                 key={folder.id}
