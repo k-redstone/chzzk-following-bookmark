@@ -1,17 +1,17 @@
-import type { BookmarkState } from '@/content/types/bookmark'
-
+import { addBookmarkFolder, getBookmarkState } from '@content/storages/bookmark'
 import {
   Plus,
   ChevronDown,
   FolderPlus,
   // Minus,
 } from 'lucide-react'
-import useIsViewportWide1200 from '@/content/hooks/useIsViewportWide1200'
 import { useEffect, useState } from 'react'
-import CreateFolderModal from '@/content/components/CreateFolderModal'
-import { addBookmarkFolder, getBookmarkState } from '@content/storages/bookmark'
 
+import type { BookmarkState } from '@/content/types/bookmark'
+
+import CreateFolderModal from '@/content/components/CreateFolderModal'
 import FolderItem from '@/content/components/FolderItem'
+import useIsViewportWide1200 from '@/content/hooks/useIsViewportWide1200'
 
 export default function App() {
   const isWide = useIsViewportWide1200()

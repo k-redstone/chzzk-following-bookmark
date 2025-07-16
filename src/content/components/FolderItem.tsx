@@ -1,9 +1,10 @@
 import { EllipsisVertical, Folder, Plus, Trash, Pencil } from 'lucide-react'
-import { NAV_BTN_CLASS, NAV_ITEM_CLASS } from '@/constants/chzzkEl'
-
 import { useRef, useState } from 'react'
-import useClickAway from '@/content/hooks/useClickAway'
+
 import type { BookmarkFolder } from '@/content/types/bookmark'
+
+import { NAV_BTN_CLASS, NAV_ITEM_CLASS } from '@/constants/chzzkEl'
+import useClickAway from '@/content/hooks/useClickAway'
 
 interface IFolderItemProps {
   folder: BookmarkFolder

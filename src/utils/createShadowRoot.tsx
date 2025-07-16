@@ -1,5 +1,5 @@
-import { SHADOW_HOST_ID } from '../constants'
-import { NAV_WRAPPER_CLASS } from '../constants/chzzkEl'
+import { SHADOW_HOST_ID } from '@/constants'
+import { NAV_WRAPPER_CLASS } from '@/constants/chzzkEl'
 
 export default function createShadowRoot(
   target: Element,

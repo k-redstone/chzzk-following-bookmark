@@ -1,5 +1,6 @@
 import { Plus, ChevronDown, FolderPlus, Folder, Minus } from 'lucide-react'
-import useIsViewportWide1200 from './content/hooks/useIsViewportWide1200'
+import { useEffect, useState } from 'react'
+
 import {
   NAV_TITLE_CLASS,
   NAV_HEADER_CLASS,
@@ -7,14 +8,14 @@ import {
   NAV_ITEM_CLASS,
   NAV_BTN_CLASS,
 } from './constants/chzzkEl'
-import { useEffect, useState } from 'react'
-
 import CreateFolderModal from './content/components/CreateFolderModal'
-import type { BookmarkState } from './content/types/bookmark'
+import useIsViewportWide1200 from './content/hooks/useIsViewportWide1200'
 import {
   addBookmarkFolder,
   getBookmarkState,
 } from './content/storages/bookmark'
+
+import type { BookmarkState } from './content/types/bookmark'
 
 export default function App() {
   const isWide = useIsViewportWide1200()

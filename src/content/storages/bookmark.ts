@@ -2,7 +2,7 @@ import type {
   BookmarkState,
   BookmarkFolder,
   BookmarkItem,
-} from '../types/bookmark'
+} from '@content/types/bookmark'
 
 const STORAGE_KEY = 'bookmarkState'
 
