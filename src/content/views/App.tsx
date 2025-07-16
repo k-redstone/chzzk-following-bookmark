@@ -49,28 +49,19 @@ export default function App() {
             />
           )}
 
-          <div className={``}>
-            <h2 className={``}>팔로잉 북마크</h2>
+          <div className="text-content-05 flex justify-between px-2">
+            <h2 className={`text-xs font-extrabold`}>팔로잉 북마크</h2>
             <div className="flex gap-x-1">
-              <button
-                type="button"
-                className={``}
-              >
+              <button type="button">
                 <Plus className="h-5 w-5" />
               </button>
-              <button
-                type="button"
-                className={``}
-              >
+              <button type="button">
                 <FolderPlus
                   className="h-5 w-5"
                   onClick={() => setCreateFolderModalOpen(true)}
                 />
               </button>
-              <button
-                type="button"
-                className={``}
-              >
+              <button type="button">
                 <ChevronDown className="h-5 w-5" />
               </button>
             </div>

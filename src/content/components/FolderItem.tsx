@@ -3,7 +3,6 @@ import { useRef, useState } from 'react'
 
 import type { BookmarkFolder } from '@/content/types/bookmark'
 
-import { NAV_BTN_CLASS, NAV_ITEM_CLASS } from '@/constants/chzzkEl'
 import useClickAway from '@/content/hooks/useClickAway'
 
 interface IFolderItemProps {
@@ -17,55 +16,53 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   useClickAway(menuRef, () => setShowPopup(false))
 
   return (
-    <div className={`${NAV_ITEM_CLASS}`}>
-      <div className="grow space-x-2">
+    <div className="flex items-center justify-between py-2 pl-1">
+      <div className="flex grow items-center space-x-2">
         <Folder className="h-5 w-5" />
         <span>{folder.name}</span>
       </div>
 
-      <div className="flex gap-x-1">
+      <div className="relative flex gap-x-1">
         <button
           type="button"
-          className={`${NAV_BTN_CLASS}`}
+          className={`hover:bg-bg-layer-03 cursor-pointer rounded p-1`}
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5.5 w-5.5" />
         </button>
         <button
           type="button"
-          className={`${NAV_BTN_CLASS}`}
-          onClick={() => {
+          className={`hover:bg-bg-layer-03 cursor-pointer rounded p-1`}
+          onMouseDown={(e) => {
+            e.stopPropagation()
             setShowPopup(!showPopup)
           }}
         >
-          <EllipsisVertical className="h-5 w-5" />
+          <EllipsisVertical className="h-5.5 w-5.5" />
         </button>
+        {showPopup && (
+          <div
+            ref={menuRef}
+            className="bg-bg-layer-02 absolute right-1 bottom-6.5 flex gap-x-1 rounded px-2 py-1"
+          >
+            <button
+              className="text-bg-chzzk-01 hover:bg-bg-layer-06 cursor-pointer rounded p-2"
+              onClick={() => {
+                setShowPopup(false)
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button
+              className="hover:bg-bg-layer-06 cursor-pointer rounded p-2 text-red-500"
+              onClick={() => {
+                setShowPopup(false)
+              }}
+            >
+              <Trash className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
-
-      {showPopup && (
-        <div
-          ref={menuRef}
-          className="border-background absolute top-0.5 -right-30 z-9999 flex w-32 flex-col gap-y-2 rounded border bg-[#1d1f22] py-1 shadow-lg"
-        >
-          <button
-            className="profile_layer_area__dPqpR"
-            onClick={() => {
-              setShowPopup(false)
-            }}
-          >
-            <Pencil className="mr-2 h-4 w-4" />
-            <span>이름 수정</span>
-          </button>
-          <button
-            className="profile_layer_area__dPqpR text-red-500"
-            onClick={() => {
-              setShowPopup(false)
-            }}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            <span>삭제</span>
-          </button>
-        </div>
-      )}
     </div>
   )
 }
