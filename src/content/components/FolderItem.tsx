@@ -11,6 +11,7 @@ import { useRef, useState } from 'react'
 import type { BookmarkFolder } from '@/content/types/bookmark'
 
 import DeleteFolderModal from '@/content/components/DeleteFolderModal'
+import EditFolderNameModal from '@/content/components/EditFolderNameModal'
 import useClickAway from '@/content/hooks/useClickAway'
 interface IFolderItemProps {
   folder: BookmarkFolder
@@ -21,6 +22,8 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
   const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] =
     useState<boolean>(false)
+  const [isEditFolderModalOpen, setIsEditFolderModalOpen] =
+    useState<boolean>(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
   useClickAway(menuRef, () => setShowPopup(false))
@@ -30,6 +33,12 @@ export default function FolderItem({ folder }: IFolderItemProps) {
       {isDeleteFolderModalOpen && (
         <DeleteFolderModal
           handleModalClose={() => setIsDeleteFolderModalOpen(false)}
+          folder={folder}
+        />
+      )}
+      {isEditFolderModalOpen && (
+        <EditFolderNameModal
+          handleModalClose={() => setIsEditFolderModalOpen(false)}
           folder={folder}
         />
       )}
@@ -71,7 +80,9 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             >
               <button
                 className="text-bg-chzzk-01 hover:bg-bg-layer-06 cursor-pointer rounded p-2"
-                onClick={() => {
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                  setIsEditFolderModalOpen(true)
                   setShowPopup(false)
                 }}
               >
