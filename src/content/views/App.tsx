@@ -1,4 +1,4 @@
-import type { BookmarkState } from '../types/bookmark'
+import type { BookmarkState } from '@/content/types/bookmark'
 
 import {
   Plus,
@@ -6,19 +6,12 @@ import {
   FolderPlus,
   // Minus,
 } from 'lucide-react'
-import useIsViewportWide1200 from '../hooks/useIsViewportWide1200'
-import {
-  NAV_TITLE_CLASS,
-  NAV_HEADER_CLASS,
-  NAV_LIST_CLASS,
-  NAV_ITEM_CLASS,
-  NAV_BTN_CLASS,
-} from '../../constants/chzzkEl'
+import useIsViewportWide1200 from '@/content/hooks/useIsViewportWide1200'
 import { useEffect, useState } from 'react'
-import CreateFolderModal from '../components/CreateFolderModal'
-import { addBookmarkFolder, getBookmarkState } from '../storages/bookmark'
+import CreateFolderModal from '@/content/components/CreateFolderModal'
+import { addBookmarkFolder, getBookmarkState } from '@content/storages/bookmark'
 
-import FolderItem from '../components/FolderItem'
+import FolderItem from '@/content/components/FolderItem'
 
 export default function App() {
   const isWide = useIsViewportWide1200()
@@ -56,18 +49,18 @@ export default function App() {
             />
           )}
 
-          <div className={`${NAV_HEADER_CLASS}`}>
-            <h2 className={`${NAV_TITLE_CLASS}`}>팔로잉 북마크</h2>
+          <div className={``}>
+            <h2 className={``}>팔로잉 북마크</h2>
             <div className="flex gap-x-1">
               <button
                 type="button"
-                className={`${NAV_BTN_CLASS}`}
+                className={``}
               >
                 <Plus className="h-5 w-5" />
               </button>
               <button
                 type="button"
-                className={`${NAV_BTN_CLASS}`}
+                className={``}
               >
                 <FolderPlus
                   className="h-5 w-5"
@@ -76,29 +69,29 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className={`${NAV_BTN_CLASS}`}
+                className={``}
               >
                 <ChevronDown className="h-5 w-5" />
               </button>
             </div>
           </div>
-          <div className={`${NAV_LIST_CLASS}`}>
+          <div className={``}>
             {bookmarkData?.folders.map((folder) => (
               <FolderItem
                 key={folder.id}
                 folder={folder}
               />
             ))}
-            <a className={`${NAV_ITEM_CLASS}`}>asdfasdf</a>
+            <a className={``}>asdfasdf</a>
           </div>
         </>
       ) : (
         <>
-          <h2 className={`${NAV_TITLE_CLASS}`}>북마크</h2>
-          <div className={`${NAV_LIST_CLASS}`}>
-            <a className={`${NAV_ITEM_CLASS}`}>asdf</a>
-            <a className={`${NAV_ITEM_CLASS}`}>asdfasdf</a>
-            <a className={`${NAV_ITEM_CLASS}`}>asdfasdfdfasdf</a>
+          <h2 className={``}>북마크</h2>
+          <div className={``}>
+            <a className={``}>asdf</a>
+            <a className={``}>asdfasdf</a>
+            <a className={``}>asdfasdfdfasdf</a>
           </div>
         </>
       )}

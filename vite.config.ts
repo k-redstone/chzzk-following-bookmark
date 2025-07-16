@@ -7,4 +7,13 @@ import manifest from './public/manifest.config'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), crx(manifest)],
+
+  resolve: {
+    alias: [
+      { find: '@', replacement: '/src' },
+      { find: '@content', replacement: '/src/content' },
+      { find: '@utils', replacement: '/src/utils' },
+      { find: '@constants', replacement: '/src/constants' },
+    ],
+  },
 })

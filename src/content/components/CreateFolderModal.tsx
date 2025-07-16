@@ -1,5 +1,5 @@
-import CommonModal from './CommonModal'
-import { SEARCH_FORM_CLASS, SEARCH_INPUT_CLASS } from '../../constants/chzzkEl'
+import CommonModal from '@/content/components/CommonModal'
+import { SEARCH_FORM_CLASS, SEARCH_INPUT_CLASS } from '@/constants/chzzkEl'
 import { useState } from 'react'
 
 interface CreateFolderModalProps {
