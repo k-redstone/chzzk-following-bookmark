@@ -25,9 +25,6 @@ export default function FolderItem({ folder }: IFolderItemProps) {
 
   useClickAway(menuRef, () => setShowPopup(false))
 
-  // console.log(isDeleteFolderModalOpen)
-  console.log(showPopup)
-
   return (
     <>
       {isDeleteFolderModalOpen && (
@@ -38,7 +35,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
       )}
       <div className="hover:bg-bg-04 flex cursor-pointer items-center justify-between rounded pl-1">
         <div
-          className="flex grow items-center space-x-2"
+          className="flex min-w-0 grow items-center space-x-2"
           onClick={() => setIsOpenFolder(!isOpenFolder)}
         >
           {isOpenFolder ? (
@@ -46,7 +43,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           ) : (
             <Folder className="h-5 w-5" />
           )}
-          <span>{folder.name}</span>
+          <p className="max-w-[105px] truncate">{folder.name}</p>
         </div>
 
         <div className="relative flex gap-x-1">

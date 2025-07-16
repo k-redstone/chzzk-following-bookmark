@@ -1,8 +1,6 @@
 import { useState } from 'react'
 
-import { SEARCH_FORM_CLASS, SEARCH_INPUT_CLASS } from '@/constants/chzzkEl'
 import CommonModal from '@/content/components/CommonModal'
-
 
 interface CreateFolderModalProps {
   handleModalClose: () => void
@@ -17,32 +15,34 @@ export default function CreateFolderModal({
 
   return (
     <CommonModal handleModalClose={handleModalClose}>
-      <div className="bg-foreground flex w-[35rem] flex-col gap-y-6 rounded-xl px-6 py-4">
-        <div className="flex justify-between gap-x-2.5">
-          <h1 className="text-xl font-bold">폴더 추가</h1>
+      <div className="bg-foreground flex w-[32rem] flex-col gap-y-6 rounded-xl px-6 py-4 text-sm">
+        <div className="flex justify-center">
+          <h1 className="text-base font-extrabold">폴더 추가</h1>
         </div>
-        <div className={`${SEARCH_FORM_CLASS}`}>
+        <div className="bg-bg-04 h-0.5 w-full" />
+        <div className="flex justify-center">
           <input
-            className={`rounded-lg p-2 ${SEARCH_INPUT_CLASS}`}
-            type="text"
+            className={`border-border-chzzk-04 caret-bg-chzzk-04 w-full rounded-2xl border px-4 py-2 focus:outline-none`}
             placeholder="폴더명을 입력해주세요."
             value={folderName}
             onChange={(e) => setFolderName(e.target.value)}
           />
         </div>
-        <div className="flex justify-end gap-x-2">
-          <div
-            className="bg-background cursor-pointer rounded-lg border-0 px-3 py-2 font-semibold"
+        <div className="flex justify-center gap-x-2 p-5">
+          <button
+            type="button"
+            className="bg-bg-04 hover:bg-bg-05 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold text-white"
+            onClick={() => handleModalClose()}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            className="bg-bg-chzzk-01 hover:bg-bg-chzzk-03 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold text-black"
             onClick={() => onSubmit(folderName)}
           >
-            만들기
-          </div>
-          <div
-            className="bg-background cursor-pointer rounded-lg border-0 px-3 py-2 font-semibold"
-            onClick={handleModalClose}
-          >
-            닫기
-          </div>
+            추가
+          </button>
         </div>
       </div>
     </CommonModal>

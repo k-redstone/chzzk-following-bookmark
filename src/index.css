@@ -9,6 +9,7 @@ body {
 }
 
 @theme {
+  --tw-border-style: solid;
   --font-sans: 'Paperlogy';
   --breakpoint-chzzk: 75rem;
   --color-background: rgb(20, 21, 23);
