@@ -1,7 +1,6 @@
 import CommonModal from './CommonModal'
 import { SEARCH_FORM_CLASS, SEARCH_INPUT_CLASS } from '../../constants/chzzkEl'
 import { useState } from 'react'
-// import { addBookmarkFolder } from '../storages/bookmark'
 
 interface CreateFolderModalProps {
   handleModalClose: () => void
@@ -13,11 +12,6 @@ export default function CreateFolderModal({
   onSubmit,
 }: CreateFolderModalProps) {
   const [folderName, setFolderName] = useState<string>('')
-
-  // const handleCreateFolder = () => {
-  //   addBookmarkFolder(folderName)
-  //   handleModalClose()
-  // }
 
   return (
     <CommonModal handleModalClose={handleModalClose}>

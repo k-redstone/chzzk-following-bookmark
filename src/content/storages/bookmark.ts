@@ -93,6 +93,20 @@ export async function renameBookmarkFolder(
   return folder
 }
 
+// 폴더 제거
+export async function removeBookmarkFolder(folderId: string): Promise<boolean> {
+  const state = await getBookmarkState()
+
+  const folderIdx = state.folders.findIndex((f) => f.id === folderId)
+  if (folderIdx === -1) return false
+  state.folders.splice(folderIdx, 1)
+
+  state.items = state.items.filter((item) => item.folderId !== folderId)
+
+  await saveBookmarkState(state)
+  return true
+}
+
 // 아이템 제거
 export async function removeBookmarkItem(itemId: string): Promise<boolean> {
   const state = await getBookmarkState()

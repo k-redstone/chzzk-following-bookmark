@@ -1,6 +1,11 @@
 import type { BookmarkState } from '../types/bookmark'
 
-import { Plus, ChevronDown, FolderPlus, Folder, Minus } from 'lucide-react'
+import {
+  Plus,
+  ChevronDown,
+  FolderPlus,
+  // Minus,
+} from 'lucide-react'
 import useIsViewportWide1200 from '../hooks/useIsViewportWide1200'
 import {
   NAV_TITLE_CLASS,
@@ -12,6 +17,8 @@ import {
 import { useEffect, useState } from 'react'
 import CreateFolderModal from '../components/CreateFolderModal'
 import { addBookmarkFolder, getBookmarkState } from '../storages/bookmark'
+
+import FolderItem from '../components/FolderItem'
 
 export default function App() {
   const isWide = useIsViewportWide1200()
@@ -77,33 +84,10 @@ export default function App() {
           </div>
           <div className={`${NAV_LIST_CLASS}`}>
             {bookmarkData?.folders.map((folder) => (
-              <div className={`${NAV_HEADER_CLASS}`}>
-                <div className="grow space-x-2">
-                  <Folder className="h-5 w-5" />
-                  <span>{folder.name}</span>
-                </div>
-
-                <div className="flex gap-x-1">
-                  <button
-                    type="button"
-                    className={`${NAV_BTN_CLASS}`}
-                  >
-                    <Plus className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${NAV_BTN_CLASS}`}
-                  >
-                    <Minus className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${NAV_BTN_CLASS}`}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+              <FolderItem
+                key={folder.id}
+                folder={folder}
+              />
             ))}
             <a className={`${NAV_ITEM_CLASS}`}>asdfasdf</a>
           </div>
