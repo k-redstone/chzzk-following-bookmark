@@ -6,5 +6,5 @@ export interface IChzzkResponse<T> {
 
 export interface IMessage {
   type: string
-  args: unknown[]
+  args: string[]
 }

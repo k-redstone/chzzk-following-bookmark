@@ -5,7 +5,9 @@ import {
   // Minus,
 } from 'lucide-react'
 
+import StreamerItem from '@/content/components/card/StreamerItem'
 import FolderItem from '@/content/components/FolderItem'
+import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useIsViewportWide1200 from '@/content/hooks/useIsViewportWide1200'
@@ -20,6 +22,11 @@ export default function App() {
     openModal: openCreateFolderModal,
     closeModal: closeCreateFolderModal,
   } = useModal()
+  const {
+    isOpen: isOpenAddItemModal,
+    openModal: openAddItemModal,
+    closeModal: closeAddItemModall,
+  } = useModal()
 
   return (
     <>
@@ -27,6 +34,9 @@ export default function App() {
         <>
           {isOpenCreateFolderModal && (
             <CreateFolderModal handleModalClose={closeCreateFolderModal} />
+          )}
+          {isOpenAddItemModal && (
+            <AddItemModal handleModalClose={closeAddItemModall} />
           )}
 
           <div className="text-content-05 flex items-center justify-between px-2">
@@ -36,7 +46,10 @@ export default function App() {
                 type="button"
                 className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
               >
-                <Plus className="h-4.5 w-4.5 hover:text-white" />
+                <Plus
+                  className="h-4.5 w-4.5 hover:text-white"
+                  onClick={() => openAddItemModal()}
+                />
               </button>
               <button
                 type="button"
@@ -66,7 +79,18 @@ export default function App() {
                 )
               }
             })}
-            <a className={``}>asdfasdf</a>
+
+            {bookmarkData?.root.map((node) => {
+              if (node.type === 'item') {
+                return (
+                  <StreamerItem
+                    key={node.id}
+                    streamer={node}
+                    compact={false}
+                  />
+                )
+              }
+            })}
           </div>
         </>
       ) : (

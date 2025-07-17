@@ -54,3 +54,11 @@ export interface IFollowingListContent {
   totalPage: number
   followingList: IFollowingItem[]
 }
+
+export interface ILiveContent {
+  channelId: string
+  liveTitle: string
+  status: 'OPEN' | 'CLOSE'
+  concurrentUserCount: number
+  liveCategoryValue: string
+}
