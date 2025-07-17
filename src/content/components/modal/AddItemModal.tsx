@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
 import type { IFollowingListContent, IFollowingItem } from '@/types/follow'
 
-import CommonModal from '@/content/components/CommonModal'
+import CommonModal from '@/content/components/modal/CommonModal'
 import { addItemToFolder, addRootBookmarkItem } from '@/stores/bookmarkStore'
 import { sendRuntimeMessage } from '@/utils/helper'
 

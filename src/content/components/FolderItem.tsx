@@ -10,9 +10,9 @@ import { useRef, useState } from 'react'
 
 import type { BookmarkFolder } from '@/types/bookmark'
 
-import AddItemModal from '@/content/components/AddItemModal'
-import DeleteFolderModal from '@/content/components/DeleteFolderModal'
-import EditFolderNameModal from '@/content/components/EditFolderNameModal'
+import AddItemModal from '@/content/components/modal/AddItemModal'
+import DeleteFolderModal from '@/content/components/modal/DeleteFolderModal'
+import EditFolderNameModal from '@/content/components/modal/EditFolderNameModal'
 import useClickAway from '@/content/hooks/useClickAway'
 import useModal from '@/content/hooks/useModal'
 
@@ -23,10 +23,17 @@ interface IFolderItemProps {
 export default function FolderItem({ folder }: IFolderItemProps) {
   const [showPopup, setShowPopup] = useState(false)
   const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
-  const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] =
-    useState<boolean>(false)
-  const [isEditFolderModalOpen, setIsEditFolderModalOpen] =
-    useState<boolean>(false)
+
+  const {
+    isOpen: isOpenDeleteFolderModal,
+    openModal: openDeleteFolderModal,
+    closeModal: closeDeleteFolderModal,
+  } = useModal()
+  const {
+    isOpen: isOpenEditFolderModal,
+    openModal: openEditFolderModal,
+    closeModal: closeEditFolderModal,
+  } = useModal()
 
   const {
     isOpen: isOpenAddItemModal,
@@ -40,16 +47,16 @@ export default function FolderItem({ folder }: IFolderItemProps) {
 
   return (
     <>
-      {isDeleteFolderModalOpen && (
+      {isOpenDeleteFolderModal && (
         <DeleteFolderModal
-          handleModalClose={() => setIsDeleteFolderModalOpen(false)}
+          handleModalClose={() => closeDeleteFolderModal()}
           folder={folder}
         />
       )}
 
-      {isEditFolderModalOpen && (
+      {isOpenEditFolderModal && (
         <EditFolderNameModal
-          handleModalClose={() => setIsEditFolderModalOpen(false)}
+          handleModalClose={() => closeEditFolderModal()}
           folder={folder}
         />
       )}
@@ -105,7 +112,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                 className="text-bg-chzzk-01 hover:bg-bg-layer-06 cursor-pointer rounded p-2"
                 onMouseDown={(e) => {
                   e.stopPropagation()
-                  setIsEditFolderModalOpen(true)
+                  openEditFolderModal()
                   setShowPopup(false)
                 }}
               >
@@ -115,7 +122,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                 className="hover:bg-bg-layer-06 cursor-pointer rounded p-2 text-red-500"
                 onMouseDown={(e) => {
                   e.stopPropagation()
-                  setIsDeleteFolderModalOpen(true)
+                  openDeleteFolderModal()
                   setShowPopup(false)
                 }}
               >

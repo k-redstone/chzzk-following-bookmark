@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -10,11 +11,15 @@ import createShadowRoot from '@/utils/createShadowRoot'
 const target = document.querySelector(`.${NAV_TARGET_CLASS}`)
 if (target) {
   const shadowRoot = createShadowRoot(target, [styles])
+
   target.appendChild(shadowRoot)
 
+  const queryClient = new QueryClient()
   createRoot(shadowRoot).render(
     <StrictMode>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </StrictMode>,
   )
 }

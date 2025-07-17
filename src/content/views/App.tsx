@@ -4,49 +4,29 @@ import {
   FolderPlus,
   // Minus,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
 
-import type { BookmarkState } from '@/types/bookmark'
-
-import CreateFolderModal from '@/content/components/CreateFolderModal'
 import FolderItem from '@/content/components/FolderItem'
+import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
+import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useIsViewportWide1200 from '@/content/hooks/useIsViewportWide1200'
-import { getBookmarkState, addBookmarkFolder } from '@/stores/bookmarkStore'
+import useModal from '@/content/hooks/useModal'
 
 export default function App() {
   const isWide = useIsViewportWide1200()
-  const [bookmarkData, setBookmarkData] = useState<BookmarkState | null>(null)
-  const [isCreateFolderModalOpen, setCreateFolderModalOpen] =
-    useState<boolean>(false)
+  const { data: bookmarkData } = useBookmarkState()
 
-  const handleCreateFolderOff = () => {
-    setCreateFolderModalOpen(false)
-  }
-
-  const fetchBookmarkData = async () => {
-    const data = await getBookmarkState()
-    setBookmarkData(data)
-  }
-
-  useEffect(() => {
-    fetchBookmarkData()
-  }, [])
-
-  const handleFolderAdded = async (folderName: string) => {
-    await addBookmarkFolder(folderName)
-    await fetchBookmarkData()
-    setCreateFolderModalOpen(false)
-  }
+  const {
+    isOpen: isOpenCreateFolderModal,
+    openModal: openCreateFolderModal,
+    closeModal: closeCreateFolderModal,
+  } = useModal()
 
   return (
     <>
       {isWide ? (
         <>
-          {isCreateFolderModalOpen && (
-            <CreateFolderModal
-              handleModalClose={handleCreateFolderOff}
-              onSubmit={handleFolderAdded}
-            />
+          {isOpenCreateFolderModal && (
+            <CreateFolderModal handleModalClose={closeCreateFolderModal} />
           )}
 
           <div className="text-content-05 flex items-center justify-between px-2">
@@ -64,7 +44,7 @@ export default function App() {
               >
                 <FolderPlus
                   className="h-4.5 w-4.5 hover:text-white"
-                  onClick={() => setCreateFolderModalOpen(true)}
+                  onClick={() => openCreateFolderModal()}
                 />
               </button>
               <button
