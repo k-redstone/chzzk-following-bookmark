@@ -13,7 +13,16 @@ export default {
         js: ['src/content/main.tsx'],
       },
     ],
-    host_permissions: ['https://chzzk.naver.com/*'],
+
+    background: {
+      service_worker: 'src/background/index.ts',
+      type: 'module',
+    },
+
+    host_permissions: [
+      'https://chzzk.naver.com/*',
+      'https://api.chzzk.naver.com/*',
+    ],
     permissions: ['storage'],
   }),
 }

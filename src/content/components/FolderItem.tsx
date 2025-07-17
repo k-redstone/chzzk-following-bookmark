@@ -10,9 +10,12 @@ import { useRef, useState } from 'react'
 
 import type { BookmarkFolder } from '@/content/types/bookmark'
 
+import AddItemModal from '@/content/components/AddItemModal'
 import DeleteFolderModal from '@/content/components/DeleteFolderModal'
 import EditFolderNameModal from '@/content/components/EditFolderNameModal'
 import useClickAway from '@/content/hooks/useClickAway'
+import useModal from '@/content/hooks/useModal'
+
 interface IFolderItemProps {
   folder: BookmarkFolder
 }
@@ -24,6 +27,13 @@ export default function FolderItem({ folder }: IFolderItemProps) {
     useState<boolean>(false)
   const [isEditFolderModalOpen, setIsEditFolderModalOpen] =
     useState<boolean>(false)
+
+  const {
+    isOpen: isOpenAddItemModal,
+    openModal: OpenAddItemModal,
+    closeModal: closeAddItemModal,
+  } = useModal()
+
   const menuRef = useRef<HTMLDivElement | null>(null)
 
   useClickAway(menuRef, () => setShowPopup(false))
@@ -36,12 +46,22 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           folder={folder}
         />
       )}
+
       {isEditFolderModalOpen && (
         <EditFolderNameModal
           handleModalClose={() => setIsEditFolderModalOpen(false)}
           folder={folder}
         />
       )}
+
+      {isOpenAddItemModal && (
+        <AddItemModal
+          handleModalClose={closeAddItemModal}
+          folder={folder}
+        />
+      )}
+      {/* <AddItemModal handleModalClose={closeAddItemModal} /> */}
+
       <div className="hover:bg-bg-04 flex cursor-pointer items-center justify-between rounded pl-1">
         <div
           className="flex min-w-0 grow items-center space-x-2"
@@ -59,6 +79,10 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           <button
             type="button"
             className={`hover:bg-bg-layer-03 cursor-pointer rounded p-1`}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              OpenAddItemModal()
+            }}
           >
             <Plus className="h-5.5 w-5.5" />
           </button>
@@ -67,7 +91,6 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             className={`hover:bg-bg-layer-03 cursor-pointer rounded p-1`}
             onMouseDown={(e) => {
               e.stopPropagation()
-              console.log('showPopup')
               setShowPopup(!showPopup)
             }}
           >

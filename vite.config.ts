@@ -17,4 +17,9 @@ export default defineConfig({
       { find: '@constants', replacement: '/src/constants' },
     ],
   },
+  server: {
+    cors: {
+      origin: '*',
+    },
+  },
 })
