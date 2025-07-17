@@ -1,19 +1,24 @@
+type BookmarkNodeType = 'folder' | 'item'
+
 export interface BookmarkFolder {
   id: string
+  type: 'folder'
   name: string
   createdAt: number
+  items: BookmarkItem[]
 }
 
 export interface BookmarkItem {
   id: string
+  type: 'item'
   hashId: string
   name: string
   profileImageUrl: string
   folderId?: string
   createdAt: number
 }
+export type BookmarkNode = BookmarkFolder | BookmarkItem
 
 export interface BookmarkState {
-  folders: BookmarkFolder[]
-  items: BookmarkItem[]
+  root: BookmarkNode[]
 }

@@ -1,7 +1,7 @@
-import type { BookmarkFolder } from '@/content/types/bookmark'
+import type { BookmarkFolder } from '@/types/bookmark'
 
 import CommonModal from '@/content/components/CommonModal'
-import { removeBookmarkFolder } from '@/content/storages/bookmark'
+import { removeBookmarkFolder } from '@/stores/bookmarkStore'
 
 interface IDeleteFolderModalProps {
   handleModalClose: () => void

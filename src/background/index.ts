@@ -1,5 +1,5 @@
-import type { IChzzkResponse, IMessage } from '@/common/types'
-import type { IFollowingListContent } from '@/common/types/follow'
+import type { IChzzkResponse, IMessage } from '@/types'
+import type { IFollowingListContent } from '@/types/follow'
 
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
 
@@ -21,11 +21,16 @@ async function request<T>(path: string): Promise<IChzzkResponse<T>> {
   throw new Error(`${response.status}: ${response.statusText}`)
 }
 
+// 치지직 API
 async function fetchFollowList() {
   const followList = await request<IFollowingListContent>(FETCH_FOLLOWING_URL)
   console.log(followList.content)
   return followList.content
 }
+
+// indexedDB
+
+// 헬퍼 함수들
 
 const messageHandlers: Record<
   string,

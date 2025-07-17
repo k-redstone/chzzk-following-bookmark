@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useRef, useState } from 'react'
 
-import type { BookmarkFolder } from '@/content/types/bookmark'
+import type { BookmarkFolder } from '@/types/bookmark'
 
 import AddItemModal from '@/content/components/AddItemModal'
 import DeleteFolderModal from '@/content/components/DeleteFolderModal'

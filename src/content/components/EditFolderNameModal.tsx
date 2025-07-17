@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-import type { BookmarkFolder } from '@/content/types/bookmark'
+import type { BookmarkFolder } from '@/types/bookmark'
 
 import CommonModal from '@/content/components/CommonModal'
-import { renameBookmarkFolder } from '@/content/storages/bookmark'
+import { renameBookmarkFolder } from '@/stores/bookmarkStore'
 
 interface IEditFolderNameModalProps {
   handleModalClose: () => void

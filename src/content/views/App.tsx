@@ -1,4 +1,3 @@
-import { addBookmarkFolder, getBookmarkState } from '@content/storages/bookmark'
 import {
   Plus,
   ChevronDown,
@@ -7,11 +6,12 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import type { BookmarkState } from '@/content/types/bookmark'
+import type { BookmarkState } from '@/types/bookmark'
 
 import CreateFolderModal from '@/content/components/CreateFolderModal'
 import FolderItem from '@/content/components/FolderItem'
 import useIsViewportWide1200 from '@/content/hooks/useIsViewportWide1200'
+import { getBookmarkState, addBookmarkFolder } from '@/stores/bookmarkStore'
 
 export default function App() {
   const isWide = useIsViewportWide1200()
@@ -76,12 +76,16 @@ export default function App() {
             </div>
           </div>
           <div className={`flex flex-col gap-y-1`}>
-            {bookmarkData?.folders.map((folder) => (
-              <FolderItem
-                key={folder.id}
-                folder={folder}
-              />
-            ))}
+            {bookmarkData?.root.map((node) => {
+              if (node.type === 'folder') {
+                return (
+                  <FolderItem
+                    key={node.id}
+                    folder={node}
+                  />
+                )
+              }
+            })}
             <a className={``}>asdfasdf</a>
           </div>
         </>

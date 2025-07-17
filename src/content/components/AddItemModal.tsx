@@ -1,17 +1,11 @@
 import { Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import type {
-  IFollowingListContent,
-  IFollowingItem,
-} from '@/common/types/follow'
-import type { BookmarkItem, BookmarkFolder } from '@/content/types/bookmark'
+import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
+import type { IFollowingListContent, IFollowingItem } from '@/types/follow'
 
 import CommonModal from '@/content/components/CommonModal'
-import {
-  addFolderBookmarkItem,
-  addRootBookmarkItem,
-} from '@/content/storages/bookmark'
+import { addItemToFolder, addRootBookmarkItem } from '@/stores/bookmarkStore'
 import { sendRuntimeMessage } from '@/utils/helper'
 
 interface IAddItemModalProps {
@@ -27,7 +21,7 @@ export default function AddItemModal({
     null,
   )
   const [selectedStreamer, setSelectedStreamer] = useState<
-    Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId'>[]
+    Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'>[]
   >([])
   const fetchFollowingList = async () => {
     const result =
@@ -68,7 +62,7 @@ export default function AddItemModal({
   }
 
   const handleRemoveSelectStreamer = (
-    streamer: Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId'>,
+    streamer: Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'>,
   ) => {
     setSelectedStreamer((prev) => {
       return prev.filter((item) => item.hashId !== streamer.hashId)
@@ -77,16 +71,12 @@ export default function AddItemModal({
 
   const handleAddItemToBookmark = () => {
     if (folder) {
-      selectedStreamer.map((streamer) => {
-        addFolderBookmarkItem(folder.id, streamer)
-      })
+      addItemToFolder(folder.id, selectedStreamer)
       handleModalClose()
       return
     }
 
-    selectedStreamer.map((streamer) => {
-      addRootBookmarkItem(streamer)
-    })
+    addRootBookmarkItem(selectedStreamer)
     handleModalClose()
     return
   }
