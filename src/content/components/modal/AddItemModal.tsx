@@ -18,10 +18,12 @@ import {
 interface IAddItemModalProps {
   handleModalClose: () => void
   folder?: BookmarkFolder
+  root?: BookmarkItem[]
 }
 export default function AddItemModal({
   handleModalClose,
   folder,
+  root,
 }: IAddItemModalProps) {
   const { data: followData } = useFollowList()
   const { invalidate } = useBookmarkState()
@@ -33,7 +35,7 @@ export default function AddItemModal({
 
   const filteredList = filterNotInFolder(
     followData?.followingList,
-    folder?.items,
+    folder ? folder?.items : root,
   )
 
   const searchList = searchStreamerToFollowList(

@@ -36,7 +36,10 @@ export default function App() {
             <CreateFolderModal handleModalClose={closeCreateFolderModal} />
           )}
           {isOpenAddItemModal && (
-            <AddItemModal handleModalClose={closeAddItemModall} />
+            <AddItemModal
+              handleModalClose={closeAddItemModall}
+              root={bookmarkData?.root.filter((item) => item.type === 'item')}
+            />
           )}
 
           <div className="text-content-05 flex items-center justify-between px-2">
