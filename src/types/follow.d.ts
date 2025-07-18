@@ -62,3 +62,9 @@ export interface ILiveContent {
   concurrentUserCount: number
   liveCategoryValue: string
 }
+
+export interface IChannelContent {
+  channelId: string
+  channelName: string
+  channelImageUrl: string
+}

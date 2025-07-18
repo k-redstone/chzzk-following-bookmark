@@ -2,12 +2,13 @@ import { Trash } from 'lucide-react'
 import { useState } from 'react'
 
 import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
-import type { IFollowingItem } from '@/types/follow'
+import type { IFollowingItem, IChannelContent } from '@/types/follow'
 
 import CommonModal from '@/content/components/modal/CommonModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useFollowList from '@/content/hooks/queries/useFollowList'
 import { addItemToFolder, addRootBookmarkItem } from '@/stores/bookmarkStore'
+import { sendRuntimeMessage } from '@/utils/helper'
 import {
   searchStreamerToFollowList,
   isStreamerAlreadySelected,
@@ -28,6 +29,7 @@ export default function AddItemModal({
   const { data: followData } = useFollowList()
   const { invalidate } = useBookmarkState()
   const [searchStreamerName, setSearchStreamerName] = useState<string>('')
+  const [searchUUID, setSearchUUID] = useState<string>('')
 
   const [selectedStreamer, setSelectedStreamer] = useState<
     Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'>[]
@@ -43,7 +45,25 @@ export default function AddItemModal({
     searchStreamerName,
   )
 
-  const handleAddSelectStreamer = (item: IFollowingItem) => {
+  const handleSearchStreamerByUUID = async () => {
+    if (searchUUID.trim() === '') return
+
+    const result: IChannelContent = await sendRuntimeMessage(
+      'fetchChannelStatus',
+      searchUUID,
+    )
+    console.log(result)
+
+    if (result === null) {
+      setSearchUUID('')
+      return
+    }
+
+    setSearchUUID('')
+    handleAddSelectStreamer(result)
+  }
+
+  const handleAddSelectStreamer = (item: IFollowingItem | IChannelContent) => {
     if (isStreamerAlreadySelected(selectedStreamer, item.channelId)) return null
 
     setSelectedStreamer((prev) => [transBookmarkData(item), ...prev])
@@ -115,12 +135,20 @@ export default function AddItemModal({
           {/* 오른쪽 */}
           <div className="flex grow flex-col gap-y-3">
             <p className="text-center font-extrabold">추가된 목록</p>
-            <div className="flex justify-center">
+            <form
+              className="flex justify-center"
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSearchStreamerByUUID()
+              }}
+            >
               <input
                 className={`border-border-chzzk-04 caret-bg-chzzk-04 w-full rounded-2xl border px-4 py-2 focus:outline-none`}
                 placeholder="uuid로 추가"
+                value={searchUUID}
+                onChange={(e) => setSearchUUID(e.target.value)}
               />
-            </div>
+            </form>
             <div className="flex h-[250px] flex-col gap-y-4 overflow-y-scroll px-2">
               {selectedStreamer.map((streamer) => (
                 <div

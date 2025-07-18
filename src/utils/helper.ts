@@ -1,5 +1,7 @@
 import type { BookmarkItem } from '@/types/bookmark'
-import type { IFollowingItem } from '@/types/follow'
+import type { IFollowingItem, IChannelContent } from '@/types/follow'
+
+type TransBookmarkDataInput = IFollowingItem | IChannelContent
 
 export function sendRuntimeMessage<T>(
   type: string,
@@ -32,11 +34,20 @@ export function isStreamerAlreadySelected(
   return selected.some((streamer) => streamer.hashId === channelId)
 }
 
-export function transBookmarkData(item: IFollowingItem) {
+export function transBookmarkData(
+  item: TransBookmarkDataInput,
+): Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'> {
+  if ('channel' in item) {
+    return {
+      hashId: item.channelId,
+      name: item.channel.channelName,
+      profileImageUrl: item.channel.channelImageUrl,
+    }
+  }
   return {
     hashId: item.channelId,
-    name: item.channel.channelName,
-    profileImageUrl: item.channel.channelImageUrl,
+    name: item.channelName,
+    profileImageUrl: item.channelImageUrl,
   }
 }
 

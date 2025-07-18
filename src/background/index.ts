@@ -1,5 +1,9 @@
 import type { IChzzkResponse, IMessage } from '@/types'
-import type { IFollowingListContent, ILiveContent } from '@/types/follow'
+import type {
+  IFollowingListContent,
+  ILiveContent,
+  IChannelContent,
+} from '@/types/follow'
 
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
 
@@ -22,12 +26,15 @@ async function request<T>(path: string): Promise<IChzzkResponse<T>> {
 }
 
 // 치지직 API
+
+// 팔로우 목록 fetch
 async function fetchFollowList() {
   const followList = await request<IFollowingListContent>(FETCH_FOLLOWING_URL)
   console.log(followList.content)
   return followList.content
 }
 
+// 스트리머 live-status fetch
 async function fetchStreamerLiveStatus(hashId: string) {
   const liveStatus = await request<ILiveContent>(
     `https://api.chzzk.naver.com/polling/v3.1/channels/${hashId}/live-status`,
@@ -36,12 +43,23 @@ async function fetchStreamerLiveStatus(hashId: string) {
   return liveStatus.content
 }
 
+// 스트리머 채널 fetch
+async function fetchChannelStatus(hashId: string) {
+  const channelStatus = await request<IChannelContent>(
+    `https://api.chzzk.naver.com/service/v1/channels/${hashId}`,
+  )
+  console.log(channelStatus)
+  if (channelStatus.content?.channelId === null) return null
+  return channelStatus.content
+}
+
 // 헬퍼 함수들
 
 const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
   {
     fetchFollowList,
     fetchStreamerLiveStatus,
+    fetchChannelStatus,
   }
 
 chrome.runtime.onMessage.addListener(
