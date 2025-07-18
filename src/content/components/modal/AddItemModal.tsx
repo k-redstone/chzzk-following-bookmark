@@ -1,12 +1,19 @@
 import { Trash } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
-import type { IFollowingListContent, IFollowingItem } from '@/types/follow'
+import type { IFollowingItem } from '@/types/follow'
 
 import CommonModal from '@/content/components/modal/CommonModal'
+import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
+import useFollowList from '@/content/hooks/queries/useFollowList'
 import { addItemToFolder, addRootBookmarkItem } from '@/stores/bookmarkStore'
-import { sendRuntimeMessage } from '@/utils/helper'
+import {
+  searchStreamerToFollowList,
+  isStreamerAlreadySelected,
+  transBookmarkData,
+  filterNotInFolder,
+} from '@/utils/helper'
 
 interface IAddItemModalProps {
   handleModalClose: () => void
@@ -16,49 +23,28 @@ export default function AddItemModal({
   handleModalClose,
   folder,
 }: IAddItemModalProps) {
+  const { data: followData } = useFollowList()
+  const { invalidate } = useBookmarkState()
   const [searchStreamerName, setSearchStreamerName] = useState<string>('')
-  const [followData, setFollowData] = useState<IFollowingListContent | null>(
-    null,
-  )
+
   const [selectedStreamer, setSelectedStreamer] = useState<
     Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'>[]
   >([])
-  const fetchFollowingList = async () => {
-    const result =
-      await sendRuntimeMessage<IFollowingListContent>('fetchFollowList')
 
-    setFollowData(result)
-  }
+  const filteredList = filterNotInFolder(
+    followData?.followingList,
+    folder?.items,
+  )
 
-  const filterStreamerList = (name: string) => {
-    if (!followData) return []
-
-    const list = followData.followingList || []
-
-    if (name.trim() === '') return list
-
-    return list.filter((item) =>
-      item.channel.channelName
-        .toLowerCase()
-        .includes(name.trim().toLowerCase()),
-    )
-  }
-  const filteredList = filterStreamerList(searchStreamerName)
+  const searchList = searchStreamerToFollowList(
+    filteredList,
+    searchStreamerName,
+  )
 
   const handleAddSelectStreamer = (item: IFollowingItem) => {
-    if (
-      selectedStreamer.some((streamer) => streamer.hashId === item.channelId)
-    ) {
-      return null
-    }
-    const data = {
-      hashId: item.channelId,
-      name: item.channel.channelName,
-      profileImageUrl: item.channel.channelImageUrl,
-    }
-    setSelectedStreamer((prev) => {
-      return [data, ...prev]
-    })
+    if (isStreamerAlreadySelected(selectedStreamer, item.channelId)) return null
+
+    setSelectedStreamer((prev) => [transBookmarkData(item), ...prev])
   }
 
   const handleRemoveSelectStreamer = (
@@ -69,21 +55,19 @@ export default function AddItemModal({
     })
   }
 
-  const handleAddItemToBookmark = () => {
+  const handleAddItemToBookmark = async () => {
     if (folder) {
-      addItemToFolder(folder.id, selectedStreamer)
+      await addItemToFolder(folder.id, selectedStreamer)
+      invalidate()
       handleModalClose()
       return
     }
 
-    addRootBookmarkItem(selectedStreamer)
+    await addRootBookmarkItem(selectedStreamer)
+    invalidate()
     handleModalClose()
     return
   }
-
-  useEffect(() => {
-    fetchFollowingList()
-  }, [])
 
   return (
     <CommonModal handleModalClose={handleModalClose}>
@@ -107,7 +91,7 @@ export default function AddItemModal({
               />
             </div>
             <div className="flex h-[250px] flex-col gap-y-4 overflow-y-scroll px-2">
-              {filteredList.map((follow) => (
+              {searchList.map((follow) => (
                 <div
                   key={follow.channelId}
                   className="hover:bg-bg-04 flex cursor-pointer items-center gap-x-2 rounded-2xl p-1"

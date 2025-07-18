@@ -110,7 +110,7 @@ export async function addItemToFolder(
       createdAt: Date.now(),
     }
   })
-  folder.items = itemList
+  folder.items.push(...itemList)
   await saveBookmarkState(state)
 }
 
