@@ -52,7 +52,6 @@ export default function AddItemModal({
       'fetchChannelStatus',
       searchUUID,
     )
-    console.log(result)
 
     if (result === null) {
       setSearchUUID('')
