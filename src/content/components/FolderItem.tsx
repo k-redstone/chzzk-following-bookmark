@@ -140,7 +140,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           const node = bookmarkData?.root.find((data) => data.id === folder.id)
           if (node?.type === 'folder') {
             return (
-              <div className="ml-4 flex flex-col gap-y-1">
+              <div className="border-l-bg-chzzk-04 ml-4 flex flex-col gap-y-1 border-l-2">
                 {node.items.map((item) => (
                   <StreamerItem
                     key={item.id}
