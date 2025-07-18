@@ -70,7 +70,6 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           folder={folder}
         />
       )}
-      {/* <AddItemModal handleModalClose={closeAddItemModal} /> */}
 
       <div className="hover:bg-bg-04 flex cursor-pointer items-center justify-between rounded pl-1">
         <div
@@ -144,7 +143,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
               <div className="ml-4 flex flex-col gap-y-1">
                 {node.items.map((item) => (
                   <StreamerItem
-                    key={item.hashId}
+                    key={item.id}
                     streamer={item}
                     compact={false}
                   />
