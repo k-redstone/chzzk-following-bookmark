@@ -3,15 +3,12 @@ import type { BookmarkItem } from '@/types/bookmark'
 import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirmModal'
 import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useModal from '@/content/hooks/useModal'
-
+import useNavExpanded from '@/content/hooks/useNavExpanded'
 interface IStreamerItemProps {
   streamer: BookmarkItem
-  compact: boolean
 }
-export default function StreamerItem({
-  streamer,
-  compact,
-}: IStreamerItemProps) {
+
+export default function StreamerItem({ streamer }: IStreamerItemProps) {
   const { data: liveStatusData } = useStreamerLiveStatus(streamer.hashId)
   const {
     isOpen: isOpenDeleteItemConfirmModal,
@@ -19,17 +16,39 @@ export default function StreamerItem({
     openModal: openDeleteItemConfirmModal,
   } = useModal()
 
+  const isNavExpanded = useNavExpanded()
   const isLive = liveStatusData?.status === 'OPEN'
 
-  if (compact) {
+  if (!isNavExpanded) {
     return (
-      <div className="flex items-center justify-center py-2">
-        <img
-          src={streamer.profileImageUrl}
-          alt={streamer.name}
-          className={`h-8 w-8 rounded-full`}
-        />
-      </div>
+      <>
+        {isOpenDeleteItemConfirmModal && (
+          <DeleteItemConfirmModal
+            handleModalClose={closeDeleteItemConfirmModal}
+            streamer={streamer}
+          />
+        )}
+        <a
+          href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
+          className="flex items-center justify-center py-2"
+          onContextMenu={(e) => {
+            e.preventDefault()
+            openDeleteItemConfirmModal()
+          }}
+        >
+          <div
+            className={`border-bg-02 h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `border-border-chzzk-04 hover:border-border-chzzk-02` : `grayscale filter`}`}
+          >
+            <img
+              width={26}
+              height={26}
+              src={streamer.profileImageUrl}
+              alt={streamer.name}
+              className={`aspect-auto h-full w-full object-cover`}
+            />
+          </div>
+        </a>
+      </>
     )
   }
 

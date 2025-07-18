@@ -17,7 +17,7 @@ import EditFolderNameModal from '@/content/components/modal/EditFolderNameModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useClickAway from '@/content/hooks/useClickAway'
 import useModal from '@/content/hooks/useModal'
-
+import useNavExpanded from '@/content/hooks/useNavExpanded'
 interface IFolderItemProps {
   folder: BookmarkFolder
 }
@@ -25,7 +25,7 @@ interface IFolderItemProps {
 export default function FolderItem({ folder }: IFolderItemProps) {
   const menuRef = useRef<HTMLDivElement | null>(null)
   useClickAway(menuRef, () => setShowPopup(false))
-
+  const isNavExpanded = useNavExpanded()
   const [showPopup, setShowPopup] = useState(false)
   const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
 
@@ -47,6 +47,45 @@ export default function FolderItem({ folder }: IFolderItemProps) {
     openModal: OpenAddItemModal,
     closeModal: closeAddItemModal,
   } = useModal()
+
+  if (!isNavExpanded) {
+    return (
+      <div className={`${isOpenFolder && `bg-bg-04 rounded`}`}>
+        <div className="flex cursor-pointer items-center justify-between">
+          <div
+            className="hover:bg-bg-04 flex w-full items-center justify-center rounded p-1"
+            onClick={() => setIsOpenFolder(!isOpenFolder)}
+          >
+            {isOpenFolder ? (
+              <FolderOpen className="text-bg-chzzk-01 h-5 w-5" />
+            ) : (
+              <Folder className="h-5 w-5" />
+            )}
+          </div>
+        </div>
+
+        {isOpenFolder &&
+          (() => {
+            const node = bookmarkData?.root.find(
+              (data) => data.id === folder.id,
+            )
+            if (node?.type === 'folder') {
+              return (
+                <div className={`flex flex-col gap-y-1`}>
+                  {node.items.map((item) => (
+                    <StreamerItem
+                      key={item.id}
+                      streamer={item}
+                    />
+                  ))}
+                </div>
+              )
+            }
+            return null
+          })()}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -145,7 +184,6 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   <StreamerItem
                     key={item.id}
                     streamer={item}
-                    compact={false}
                   />
                 ))}
               </div>
