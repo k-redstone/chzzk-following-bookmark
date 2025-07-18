@@ -93,6 +93,7 @@ export default function App() {
                 <StreamerItem
                   key={node.id}
                   streamer={node}
+                  inFolder={false}
                 />
               )
             }

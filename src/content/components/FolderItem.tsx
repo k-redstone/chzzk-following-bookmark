@@ -11,6 +11,7 @@ import { useRef, useState } from 'react'
 import type { BookmarkFolder } from '@/types/bookmark'
 
 import StreamerItem from '@/content/components/card/StreamerItem'
+import FolderTooltip from '@/content/components/FolderTooltip'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import DeleteFolderModal from '@/content/components/modal/DeleteFolderModal'
 import EditFolderNameModal from '@/content/components/modal/EditFolderNameModal'
@@ -18,6 +19,7 @@ import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useClickAway from '@/content/hooks/useClickAway'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
+import useShowTooltip from '@/content/hooks/useShowTooltip'
 interface IFolderItemProps {
   folder: BookmarkFolder
 }
@@ -48,19 +50,37 @@ export default function FolderItem({ folder }: IFolderItemProps) {
     closeModal: closeAddItemModal,
   } = useModal()
 
+  const {
+    isOpen: isOpenItemTooltip,
+    closeModal: closeItemTooltip,
+    openModal: openItemTooltip,
+  } = useModal()
+
+  const { show: showToolTipSection, hide: hideTooltipSection } =
+    useShowTooltip()
+
   if (!isNavExpanded) {
     return (
       <div className={`${isOpenFolder && `bg-bg-04 rounded`}`}>
         <div className="flex cursor-pointer items-center justify-between">
           <div
-            className="hover:bg-bg-04 flex w-full items-center justify-center rounded p-1"
+            className="hover:bg-bg-04 relative flex w-full items-center justify-center rounded p-1"
             onClick={() => setIsOpenFolder(!isOpenFolder)}
+            onMouseEnter={() => {
+              openItemTooltip()
+              showToolTipSection()
+            }}
+            onMouseLeave={() => {
+              closeItemTooltip()
+              hideTooltipSection()
+            }}
           >
             {isOpenFolder ? (
               <FolderOpen className="text-bg-chzzk-01 h-5 w-5" />
             ) : (
               <Folder className="h-5 w-5" />
             )}
+            {isOpenItemTooltip && <FolderTooltip folderName={folder.name} />}
           </div>
         </div>
 
@@ -76,6 +96,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                     <StreamerItem
                       key={item.id}
                       streamer={item}
+                      inFolder={true}
                     />
                   ))}
                 </div>
@@ -184,6 +205,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   <StreamerItem
                     key={item.id}
                     streamer={item}
+                    inFolder={true}
                   />
                 ))}
               </div>

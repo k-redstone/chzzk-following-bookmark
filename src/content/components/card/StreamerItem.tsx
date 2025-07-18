@@ -1,20 +1,35 @@
 import type { BookmarkItem } from '@/types/bookmark'
 
+import ItemTooltip from '@/content/components/ItemTooltip'
 import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirmModal'
 import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
+import useShowTooltip from '@/content/hooks/useShowTooltip'
+
 interface IStreamerItemProps {
   streamer: BookmarkItem
+  inFolder: boolean
 }
 
-export default function StreamerItem({ streamer }: IStreamerItemProps) {
+export default function StreamerItem({
+  streamer,
+  inFolder,
+}: IStreamerItemProps) {
   const { data: liveStatusData } = useStreamerLiveStatus(streamer.hashId)
   const {
     isOpen: isOpenDeleteItemConfirmModal,
     closeModal: closeDeleteItemConfirmModal,
     openModal: openDeleteItemConfirmModal,
   } = useModal()
+  const {
+    isOpen: isOpenItemTooltip,
+    closeModal: closeItemTooltip,
+    openModal: openItemTooltip,
+  } = useModal()
+
+  const { show: showToolTipSection, hide: hideTooltipSection } =
+    useShowTooltip()
 
   const isNavExpanded = useNavExpanded()
   const isLive = liveStatusData?.status === 'OPEN'
@@ -30,7 +45,19 @@ export default function StreamerItem({ streamer }: IStreamerItemProps) {
         )}
         <a
           href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
-          className="flex items-center justify-center py-2"
+          className="relative flex items-center justify-center py-2"
+          onMouseEnter={() => {
+            if (isLive) {
+              openItemTooltip()
+              showToolTipSection()
+            }
+          }}
+          onMouseLeave={() => {
+            if (isLive) {
+              closeItemTooltip()
+              hideTooltipSection()
+            }
+          }}
           onContextMenu={(e) => {
             e.preventDefault()
             openDeleteItemConfirmModal()
@@ -47,6 +74,14 @@ export default function StreamerItem({ streamer }: IStreamerItemProps) {
               className={`aspect-auto h-full w-full object-cover`}
             />
           </div>
+          {isOpenItemTooltip && (
+            <ItemTooltip
+              liveStatus={liveStatusData}
+              streamer={streamer}
+              inFolder={inFolder}
+              isNavExpanded={isNavExpanded}
+            />
+          )}
         </a>
       </>
     )
@@ -62,7 +97,19 @@ export default function StreamerItem({ streamer }: IStreamerItemProps) {
       )}
       <a
         href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
-        className={`hover:bg-bg-04 flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5`}
+        className={`hover:bg-bg-04 relative flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5`}
+        onMouseEnter={() => {
+          if (isLive) {
+            openItemTooltip()
+            showToolTipSection()
+          }
+        }}
+        onMouseLeave={() => {
+          if (isLive) {
+            closeItemTooltip()
+            hideTooltipSection()
+          }
+        }}
         onContextMenu={(e) => {
           e.preventDefault()
           openDeleteItemConfirmModal()
@@ -98,6 +145,15 @@ export default function StreamerItem({ streamer }: IStreamerItemProps) {
               </span>
             )}
           </div>
+        )}
+
+        {isOpenItemTooltip && (
+          <ItemTooltip
+            liveStatus={liveStatusData}
+            streamer={streamer}
+            inFolder={inFolder}
+            isNavExpanded={isNavExpanded}
+          />
         )}
       </a>
     </>
