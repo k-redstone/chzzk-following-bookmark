@@ -2,8 +2,10 @@ import {
   Plus,
   ChevronDown,
   FolderPlus,
+  ChevronUp,
   // Minus,
 } from 'lucide-react'
+import { useState } from 'react'
 
 import StreamerItem from '@/content/components/card/StreamerItem'
 import FolderItem from '@/content/components/FolderItem'
@@ -16,6 +18,7 @@ import useModal from '@/content/hooks/useModal'
 export default function App() {
   const isWide = useIsViewportWide1200()
   const { data: bookmarkData } = useBookmarkState()
+  const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
 
   const {
     isOpen: isOpenCreateFolderModal,
@@ -47,54 +50,57 @@ export default function App() {
             <div className="flex gap-x-1">
               <button
                 type="button"
-                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
+                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1 hover:text-white"
+                onClick={() => openAddItemModal()}
               >
-                <Plus
-                  className="h-4.5 w-4.5 hover:text-white"
-                  onClick={() => openAddItemModal()}
-                />
+                <Plus className="h-4.5 w-4.5" />
               </button>
               <button
                 type="button"
-                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
+                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1 hover:text-white"
+                onClick={() => openCreateFolderModal()}
               >
-                <FolderPlus
-                  className="h-4.5 w-4.5 hover:text-white"
-                  onClick={() => openCreateFolderModal()}
-                />
+                <FolderPlus className="h-4.5 w-4.5 hover:text-white" />
               </button>
               <button
                 type="button"
-                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1"
+                className="hover:bg-bg-layer-06 cursor-pointer rounded p-1 hover:text-white"
+                onClick={() => setOpenBookbark(!isOpenBookmark)}
               >
-                <ChevronDown className="h-4.5 w-4.5 hover:text-white" />
+                {isOpenBookmark ? (
+                  <ChevronUp className="h-4.5 w-4.5" />
+                ) : (
+                  <ChevronDown className="h-4.5 w-4.5" />
+                )}
               </button>
             </div>
           </div>
-          <div className={`flex flex-col gap-y-1`}>
-            {bookmarkData?.root.map((node) => {
-              if (node.type === 'folder') {
-                return (
-                  <FolderItem
-                    key={node.id}
-                    folder={node}
-                  />
-                )
-              }
-            })}
+          {isOpenBookmark && (
+            <div className={`flex flex-col gap-y-1`}>
+              {bookmarkData?.root.map((node) => {
+                if (node.type === 'folder') {
+                  return (
+                    <FolderItem
+                      key={node.id}
+                      folder={node}
+                    />
+                  )
+                }
+              })}
 
-            {bookmarkData?.root.map((node) => {
-              if (node.type === 'item') {
-                return (
-                  <StreamerItem
-                    key={node.id}
-                    streamer={node}
-                    compact={false}
-                  />
-                )
-              }
-            })}
-          </div>
+              {bookmarkData?.root.map((node) => {
+                if (node.type === 'item') {
+                  return (
+                    <StreamerItem
+                      key={node.id}
+                      streamer={node}
+                      compact={false}
+                    />
+                  )
+                }
+              })}
+            </div>
+          )}
         </>
       ) : (
         <>
