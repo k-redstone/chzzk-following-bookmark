@@ -20,6 +20,7 @@ import useClickAway from '@/content/hooks/useClickAway'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
+import { useDnDContext } from '@/providers/DnDProvider'
 interface IFolderItemProps {
   folder: BookmarkFolder
 }
@@ -31,7 +32,8 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   const [showPopup, setShowPopup] = useState(false)
   const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
 
-  const { data: bookmarkData } = useBookmarkState()
+  const { data: bookmarkData, invalidate } = useBookmarkState()
+  const { onMouseDown, onMouseEnter, onDrop } = useDnDContext()
 
   const {
     isOpen: isOpenDeleteFolderModal,
@@ -91,15 +93,44 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             )
             if (node?.type === 'folder') {
               return (
-                <div className={`flex flex-col gap-y-1`}>
-                  {node.items.map((item) => (
-                    <StreamerItem
+                <ul className={`flex flex-col gap-y-1`}>
+                  {node.items.map((item, idx) => (
+                    <li
                       key={item.id}
-                      streamer={item}
-                      inFolder={true}
-                    />
+                      onMouseDown={(e) => {
+                        e.stopPropagation()
+                        onMouseDown(
+                          {
+                            type: 'folder',
+                            index: idx,
+                            parentId: folder.id,
+                            data: item,
+                          },
+                          e,
+                        )
+                      }}
+                      onMouseEnter={(e) => {
+                        e.preventDefault()
+                        onMouseEnter({
+                          type: 'folder',
+                          index: idx,
+                          parentId: folder.id,
+                          data: item,
+                        })
+                      }}
+                      onMouseUp={async () => {
+                        await onDrop()
+                        invalidate()
+                      }}
+                      draggable
+                    >
+                      <StreamerItem
+                        streamer={item}
+                        inFolder={true}
+                      />
+                    </li>
                   ))}
-                </div>
+                </ul>
               )
             }
             return null
@@ -200,15 +231,44 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           const node = bookmarkData?.root.find((data) => data.id === folder.id)
           if (node?.type === 'folder') {
             return (
-              <div className="border-l-bg-chzzk-04 ml-4 flex flex-col gap-y-1 border-l-2">
-                {node.items.map((item) => (
-                  <StreamerItem
+              <ul className="border-l-bg-chzzk-04 ml-4 flex flex-col gap-y-1 border-l-2">
+                {node.items.map((item, idx) => (
+                  <li
                     key={item.id}
-                    streamer={item}
-                    inFolder={true}
-                  />
+                    onMouseDown={(e) => {
+                      e.stopPropagation()
+                      onMouseDown(
+                        {
+                          type: 'folder',
+                          index: idx,
+                          parentId: folder.id,
+                          data: item,
+                        },
+                        e,
+                      )
+                    }}
+                    onMouseEnter={(e) => {
+                      e.preventDefault()
+                      onMouseEnter({
+                        type: 'folder',
+                        index: idx,
+                        parentId: folder.id,
+                        data: item,
+                      })
+                    }}
+                    onMouseUp={async () => {
+                      await onDrop()
+                      invalidate()
+                    }}
+                    draggable
+                  >
+                    <StreamerItem
+                      streamer={item}
+                      inFolder={true}
+                    />
+                  </li>
                 ))}
-              </div>
+              </ul>
             )
           }
           return null

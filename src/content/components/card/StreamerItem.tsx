@@ -6,6 +6,7 @@ import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
+import { useDnDContext } from '@/providers/DnDProvider'
 
 interface IStreamerItemProps {
   streamer: BookmarkItem
@@ -31,6 +32,8 @@ export default function StreamerItem({
   const { show: showToolTipSection, hide: hideTooltipSection } =
     useShowTooltip()
 
+  const { justDragged, mousePos } = useDnDContext()
+
   const isNavExpanded = useNavExpanded()
   const isLive = liveStatusData?.status === 'OPEN'
 
@@ -44,8 +47,15 @@ export default function StreamerItem({
           />
         )}
         <a
+          // href={''}
           href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
           className="relative flex items-center justify-center py-2"
+          onClick={(e) => {
+            if (!justDragged) {
+              e.preventDefault()
+              return
+            }
+          }}
           onMouseEnter={() => {
             if (isLive) {
               openItemTooltip()
@@ -98,6 +108,12 @@ export default function StreamerItem({
       <a
         href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
         className={`hover:bg-bg-04 relative flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5`}
+        onClick={(e) => {
+          if (mousePos.x !== 0 || mousePos.y !== 0) {
+            e.preventDefault()
+            return
+          }
+        }}
         onMouseEnter={() => {
           if (isLive) {
             openItemTooltip()

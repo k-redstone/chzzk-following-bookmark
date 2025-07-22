@@ -12,7 +12,7 @@ export default function useBookmarkState() {
   })
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ['bookmarkState'] })
+    queryClient.invalidateQueries({ queryKey: queryKeys.bookmark.state() })
   }
 
   return { ...query, invalidate }

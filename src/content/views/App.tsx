@@ -1,17 +1,18 @@
 import { Plus, ChevronDown, FolderPlus, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 
-import StreamerItem from '@/content/components/card/StreamerItem'
-import FolderItem from '@/content/components/FolderItem'
+import BookmarkList from '@/content/components/BookmarkList'
+import DragMirror from '@/content/components/DragMirror'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
+import { DnDProvider } from '@/providers/DnDProvider'
 
 export default function App() {
   const isNavExpanded = useNavExpanded()
-  const { data: bookmarkData } = useBookmarkState()
+  const { data: bookmarkData, isSuccess } = useBookmarkState()
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
 
   const {
@@ -74,31 +75,11 @@ export default function App() {
         </div>
       )}
 
-      {isOpenBookmark && (
-        <div className={`flex flex-col gap-y-1`}>
-          {bookmarkData?.root.map((node) => {
-            if (node.type === 'folder') {
-              return (
-                <FolderItem
-                  key={node.id}
-                  folder={node}
-                />
-              )
-            }
-          })}
-
-          {bookmarkData?.root.map((node) => {
-            if (node.type === 'item') {
-              return (
-                <StreamerItem
-                  key={node.id}
-                  streamer={node}
-                  inFolder={false}
-                />
-              )
-            }
-          })}
-        </div>
+      {isOpenBookmark && isSuccess && (
+        <DnDProvider>
+          <BookmarkList />
+          <DragMirror />
+        </DnDProvider>
       )}
     </>
   )
