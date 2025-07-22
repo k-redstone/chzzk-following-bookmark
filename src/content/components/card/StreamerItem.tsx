@@ -1,12 +1,14 @@
+import { useSortable, type AnimateLayoutChanges } from '@dnd-kit/sortable'
+
 import type { BookmarkItem } from '@/types/bookmark'
 
 import ItemTooltip from '@/content/components/ItemTooltip'
 import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirmModal'
 import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
+import useDndStyle from '@/content/hooks/useDndStyle'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
-import { useDnDContext } from '@/providers/DnDProvider'
 
 interface IStreamerItemProps {
   streamer: BookmarkItem
@@ -32,10 +34,25 @@ export default function StreamerItem({
   const { show: showToolTipSection, hide: hideTooltipSection } =
     useShowTooltip()
 
-  const { justDragged, mousePos } = useDnDContext()
-
   const isNavExpanded = useNavExpanded()
   const isLive = liveStatusData?.status === 'OPEN'
+
+  const animateLayoutChanges: AnimateLayoutChanges = ({
+    isSorting,
+    wasDragging,
+  }) => (isSorting || wasDragging ? false : true)
+
+  const handleMoveToStreamer = () => {
+    if (isLive) {
+      window.location.assign(`/live/${streamer.hashId}`)
+    } else {
+      window.location.assign(`/${streamer.hashId}`)
+    }
+  }
+
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: streamer.id, animateLayoutChanges: animateLayoutChanges })
+  const { style } = useDndStyle(transform, transition)
 
   if (!isNavExpanded) {
     return (
@@ -46,16 +63,13 @@ export default function StreamerItem({
             streamer={streamer}
           />
         )}
-        <a
-          // href={''}
-          href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
+        <div
           className="relative flex items-center justify-center py-2"
-          onClick={(e) => {
-            if (!justDragged) {
-              e.preventDefault()
-              return
-            }
-          }}
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+          onClick={() => handleMoveToStreamer()}
           onMouseEnter={() => {
             if (isLive) {
               openItemTooltip()
@@ -92,7 +106,7 @@ export default function StreamerItem({
               isNavExpanded={isNavExpanded}
             />
           )}
-        </a>
+        </div>
       </>
     )
   }
@@ -105,15 +119,13 @@ export default function StreamerItem({
           streamer={streamer}
         />
       )}
-      <a
-        href={isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`}
+      <div
         className={`hover:bg-bg-04 relative flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5`}
-        onClick={(e) => {
-          if (mousePos.x !== 0 || mousePos.y !== 0) {
-            e.preventDefault()
-            return
-          }
-        }}
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        onClick={() => handleMoveToStreamer()}
         onMouseEnter={() => {
           if (isLive) {
             openItemTooltip()
@@ -171,7 +183,7 @@ export default function StreamerItem({
             isNavExpanded={isNavExpanded}
           />
         )}
-      </a>
+      </div>
     </>
   )
 }

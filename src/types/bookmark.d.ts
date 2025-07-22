@@ -14,7 +14,6 @@ export interface BookmarkItem {
   hashId: string
   name: string
   profileImageUrl: string
-  folderId?: string
   createdAt: number
 }
 export type BookmarkNode = BookmarkFolder | BookmarkItem

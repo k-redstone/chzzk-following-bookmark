@@ -2,10 +2,19 @@ import type {
   BookmarkItem,
   BookmarkState,
   BookmarkFolder,
+  BookmarkNode,
 } from '@/types/bookmark'
 import type { IFollowingItem, IChannelContent } from '@/types/follow'
+import type { DragEndEvent, UniqueIdentifier } from '@dnd-kit/core'
 
-import { moveRootNode, moveItemInFolder } from '@/stores/bookmarkStore'
+import {
+  moveRootNode,
+  moveItemInFolder,
+  getBookmarkState,
+  moveItemToOtherFolder,
+  moveItemToRoot,
+  moveItemToFolder,
+} from '@/stores/bookmarkStore'
 
 type TransBookmarkDataInput = IFollowingItem | IChannelContent
 
@@ -67,94 +76,98 @@ export function filterNotInFolder(
   )
 }
 
-export function moveInArray<T>(
-  array: T[],
-  fromIdx: number,
-  toIdx: number,
-): T[] {
-  const arr = [...array]
-  const [removed] = arr.splice(fromIdx, 1)
-  arr.splice(toIdx, 0, removed)
-  return arr
+export function findNodeLocation(
+  state: BookmarkState,
+  id: UniqueIdentifier,
+): {
+  node: BookmarkNode | null
+  parent: BookmarkFolder | null
+  index: number
+} {
+  // 루트에서 직접 찾기
+  const rootIdx = state.root.findIndex((n) => n.id === id)
+  if (rootIdx !== -1) {
+    return { node: state.root[rootIdx], parent: null, index: rootIdx }
+  }
+
+  // 폴더 내부에서 찾기
+  for (const node of state.root) {
+    if (node.type === 'folder') {
+      const itemIdx = node.items.findIndex((item) => item.id === id)
+      if (itemIdx !== -1) {
+        return { node: node.items[itemIdx], parent: node, index: itemIdx }
+      }
+    }
+  }
+  return { node: null, parent: null, index: -1 }
 }
 
-// 아이템/폴더 이동
-export async function moveDnDNode(
-  from: { type: 'root' | 'folder'; parentId?: string; index: number },
-  to: { type: 'root' | 'folder'; parentId?: string; index: number },
-) {
-  // root → root (폴더/아이템 위치변경)
-  if (from.type === 'root' && to.type === 'root') {
-    await moveRootNode(from.index, to.index)
-    return null
+export async function handleDragEnd(event: DragEndEvent) {
+  const { active, over } = event
+  if (!over || active.id === over.id) return
+
+  const state = await getBookmarkState()
+
+  // active/over 위치 정보
+  const activeLoc = findNodeLocation(state, active.id)
+  const overLoc = findNodeLocation(state, over.id)
+
+  if (!activeLoc.node || !overLoc.node) return
+
+  // (1) 폴더 이동 (폴더는 루트에서만 이동 가능)
+  if (
+    activeLoc.node.type === 'folder' &&
+    !activeLoc.parent &&
+    !overLoc.parent
+  ) {
+    // 루트에서 위치 이동
+    await moveRootNode(activeLoc.index, overLoc.index)
+    return
   }
 
-  // // root → 폴더 (아이템만 이동)
-  // if (from.type === 'root' && to.type === 'folder' && to.parentId) {
-  //   const node = rootList[from.index]
-  //   if (node.type !== 'item') return state
-  //   // 폴더에서 아이템 삽입
-  //   rootList = [...rootList]
-  //   rootList.splice(from.index, 1)
-  //   const folderIdx = rootList.findIndex(
-  //     (f) => f.type === 'folder' && f.id === to.parentId,
-  //   )
-  //   if (folderIdx === -1) return state
-  //   const folder = rootList[folderIdx] as BookmarkFolder
-  //   const newFolder = { ...folder, items: [...folder.items] }
-  //   newFolder.items.splice(to.index, 0, node)
-  //   rootList[folderIdx] = newFolder
-  //   return { root: rootList }
-  // }
-
-  // // 폴더 → root (아이템만 이동)
-  // if (from.type === 'folder' && from.parentId && to.type === 'root') {
-  //   const folderIdx = rootList.findIndex(
-  //     (f) => f.type === 'folder' && f.id === from.parentId,
-  //   )
-  //   if (folderIdx === -1) return state
-  //   const folder = rootList[folderIdx] as BookmarkFolder
-  //   const item = folder.items[from.index]
-  //   const newFolder = { ...folder, items: [...folder.items] }
-  //   newFolder.items.splice(from.index, 1)
-  //   rootList = [...rootList]
-  //   rootList[folderIdx] = newFolder
-  //   rootList.splice(to.index, 0, item)
-  //   return { root: rootList }
-  // }
-
-  // // 폴더 → 폴더 (아이템만 이동)
-  if (
-    from.type === 'folder' &&
-    from.parentId &&
-    to.type === 'folder' &&
-    to.parentId
-  ) {
-    // 같은 폴더에서 이동: 순서만 변경
-    if (from.parentId === to.parentId) {
-      await moveItemInFolder(from.parentId, from.index, to.index)
+  // (2) 아이템 이동
+  if (activeLoc.node.type === 'item') {
+    // case 1: 같은 폴더 내 위치 이동
+    if (
+      activeLoc.parent &&
+      overLoc.parent &&
+      activeLoc.parent.id === overLoc.parent.id
+    ) {
+      await moveItemInFolder(
+        activeLoc.parent.id,
+        activeLoc.index,
+        overLoc.index,
+      )
       return
     }
-
-    //   // 서로 다른 폴더 간 이동
-    //   const fromFolderIdx = rootList.findIndex(
-    //     (f) => f.type === 'folder' && f.id === from.parentId,
-    //   )
-    //   const toFolderIdx = rootList.findIndex(
-    //     (f) => f.type === 'folder' && f.id === to.parentId,
-    //   )
-    //   if (fromFolderIdx === -1 || toFolderIdx === -1) return state
-    //   const fromFolder = rootList[fromFolderIdx] as BookmarkFolder
-    //   const toFolder = rootList[toFolderIdx] as BookmarkFolder
-    //   const item = fromFolder.items[from.index]
-    //   const newFromFolder = { ...fromFolder, items: [...fromFolder.items] }
-    //   newFromFolder.items.splice(from.index, 1)
-    //   const newToFolder = { ...toFolder, items: [...toFolder.items] }
-    //   newToFolder.items.splice(to.index, 0, item)
-    //   rootList = [...rootList]
-    //   rootList[fromFolderIdx] = newFromFolder
-    //   rootList[toFolderIdx] = newToFolder
-    //   return { root: rootList }
+    // case 2: 폴더 → 다른 폴더
+    if (
+      activeLoc.parent &&
+      overLoc.parent &&
+      activeLoc.parent.id !== overLoc.parent.id
+    ) {
+      await moveItemToOtherFolder(
+        activeLoc.parent.id,
+        overLoc.parent.id,
+        activeLoc.index,
+        overLoc.index,
+      )
+      return
+    }
+    // case 3: 폴더 → 루트
+    if (activeLoc.parent && !overLoc.parent) {
+      await moveItemToRoot(activeLoc.parent.id, activeLoc.index, overLoc.index)
+      return
+    }
+    // case 4: 루트 → 폴더
+    if (!activeLoc.parent && overLoc.parent) {
+      await moveItemToFolder(activeLoc.index, overLoc.parent.id, overLoc.index)
+      return
+    }
+    // case 5: 루트 내 위치 이동 (아이템)
+    if (!activeLoc.parent && !overLoc.parent) {
+      await moveRootNode(activeLoc.index, overLoc.index)
+      return
+    }
   }
-  return
 }

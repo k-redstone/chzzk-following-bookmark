@@ -1,18 +1,36 @@
+import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
 import { Plus, ChevronDown, FolderPlus, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 
 import BookmarkList from '@/content/components/BookmarkList'
-import DragMirror from '@/content/components/DragMirror'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
-import { DnDProvider } from '@/providers/DnDProvider'
+import { handleDragEnd } from '@/utils/helper'
 
 export default function App() {
   const isNavExpanded = useNavExpanded()
-  const { data: bookmarkData, isSuccess } = useBookmarkState()
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+  )
+  const {
+    data: bookmarkData,
+    isSuccess,
+    isFetching,
+    invalidate,
+  } = useBookmarkState()
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
 
   const {
@@ -76,10 +94,19 @@ export default function App() {
       )}
 
       {isOpenBookmark && isSuccess && (
-        <DnDProvider>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={async (event) => {
+            console.log(isFetching)
+            await handleDragEnd(event)
+            console.log(isFetching)
+            invalidate()
+            console.log('end')
+          }}
+        >
           <BookmarkList />
-          <DragMirror />
-        </DnDProvider>
+        </DndContext>
       )}
     </>
   )

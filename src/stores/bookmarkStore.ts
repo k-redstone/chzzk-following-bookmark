@@ -45,11 +45,13 @@ async function setState(state: BookmarkState): Promise<void> {
 
 // 전체 데이터 불러오기
 export async function getBookmarkState(): Promise<BookmarkState> {
+  console.log('fetch')
   return getState()
 }
 
 // 전체 데이터 저장
 export async function saveBookmarkState(state: BookmarkState): Promise<void> {
+  console.log('save')
   await setState(state)
 }
 
@@ -206,4 +208,62 @@ export async function moveItemInFolder(
   const [moved] = arr.splice(fromIdx, 1)
   arr.splice(toIdx, 0, moved)
   await saveBookmarkState(state)
+}
+
+// 폴더간 아이템 이동
+export async function moveItemToOtherFolder(
+  fromFolderId: string,
+  toFolderId: string,
+  fromIdx: number,
+  toIdx: number,
+) {
+  const state = await getBookmarkState()
+  const fromFolder = state.root.find(
+    (n): n is BookmarkFolder => n.type === 'folder' && n.id === fromFolderId,
+  )
+  const toFolder = state.root.find(
+    (n): n is BookmarkFolder => n.type === 'folder' && n.id === toFolderId,
+  )
+  if (!fromFolder || !toFolder) return
+
+  const [item] = fromFolder.items.splice(fromIdx, 1)
+  toFolder.items.splice(toIdx, 0, item)
+  await saveBookmarkState(state)
+}
+
+// 폴더에서 루트로 아이템 이동
+export async function moveItemToRoot(
+  fromFolderId: string,
+  fromIdx: number,
+  toIdx: number,
+) {
+  const state = await getBookmarkState()
+  const fromFolder = state.root.find(
+    (n): n is BookmarkFolder => n.type === 'folder' && n.id === fromFolderId,
+  )
+  if (!fromFolder) return
+
+  const [item] = fromFolder.items.splice(fromIdx, 1)
+  state.root.splice(toIdx, 0, item)
+  await saveBookmarkState(state)
+}
+
+// 루트에서 폴더로 아이템 이동
+export async function moveItemToFolder(
+  fromIdx: number,
+  toFolderId: string,
+  toIdx: number,
+) {
+  const state = await getBookmarkState()
+  const toFolder = state.root.find(
+    (n): n is BookmarkFolder => n.type === 'folder' && n.id === toFolderId,
+  )
+  if (!toFolder) return
+
+  const [item] = state.root.splice(fromIdx, 1)
+
+  if (item.type === 'item') {
+    toFolder.items.splice(toIdx, 0, item)
+    await saveBookmarkState(state)
+  }
 }

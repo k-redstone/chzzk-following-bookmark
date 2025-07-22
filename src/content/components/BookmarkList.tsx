@@ -1,33 +1,24 @@
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+
 import StreamerItem from '@/content/components/card/StreamerItem'
 import FolderItem from '@/content/components/FolderItem'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
-import { useDnDContext } from '@/providers/DnDProvider'
 
 export default function BookmarkList() {
-  const { data: bookmarkData, isSuccess, invalidate } = useBookmarkState()
-  const { onMouseDown, onMouseEnter, onDrop } = useDnDContext()
+  const { data: bookmarkData, isSuccess } = useBookmarkState()
+
+  if (!isSuccess) return null
 
   return (
-    <ul className={`flex flex-col gap-y-1`}>
-      {isSuccess &&
-        bookmarkData.root.map((node, idx) => {
+    <SortableContext
+      items={bookmarkData.root}
+      strategy={verticalListSortingStrategy}
+    >
+      <ul className={`flex flex-col gap-y-1`}>
+        {bookmarkData.root.map((node) => {
           if (node.type === 'folder') {
             return (
-              <li
-                key={node.id}
-                onMouseDown={(e) =>
-                  onMouseDown({ type: 'root', index: idx, data: node }, e)
-                }
-                onMouseEnter={(e) => {
-                  e.preventDefault()
-                  onMouseEnter({ type: 'root', index: idx, data: node })
-                }}
-                onMouseUp={async () => {
-                  await onDrop()
-                  invalidate()
-                }}
-                draggable
-              >
+              <li key={node.id}>
                 <FolderItem
                   key={node.id}
                   folder={node}
@@ -36,21 +27,7 @@ export default function BookmarkList() {
             )
           }
           return (
-            <li
-              key={node.id}
-              onMouseDown={(e) =>
-                onMouseDown({ type: 'root', index: idx, data: node }, e)
-              }
-              onMouseEnter={(e) => {
-                e.preventDefault()
-                onMouseEnter({ type: 'root', index: idx, data: node })
-              }}
-              onMouseUp={async () => {
-                await onDrop()
-                invalidate()
-              }}
-              draggable
-            >
+            <li key={node.id}>
               <StreamerItem
                 streamer={node}
                 inFolder={false}
@@ -58,6 +35,7 @@ export default function BookmarkList() {
             </li>
           )
         })}
-    </ul>
+      </ul>
+    </SortableContext>
   )
 }
