@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 
-import { NAV_TARGET_CLASS, NAV_TARGET_ID } from '@/constants/chzzkEl'
+import {
+  ASIDE_CONTAINER_EXPANDED_CLASS,
+  ASIDE_CONTAINER_CLASS,
+} from '@/constants/chzzkEl'
 
 export default function useNavExpanded(
-  targetId = NAV_TARGET_ID,
-  expandedClass = NAV_TARGET_CLASS,
+  targetClass = ASIDE_CONTAINER_CLASS,
+  expandedClass = ASIDE_CONTAINER_EXPANDED_CLASS,
 ) {
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
 
   useEffect(() => {
-    const nav = document.getElementById(targetId)
+    const nav = document.querySelector(`.${targetClass}`)
     if (!nav) return
 
     setIsExpanded(nav.classList.contains(expandedClass))
@@ -31,7 +34,7 @@ export default function useNavExpanded(
     })
 
     return () => observer.disconnect()
-  }, [targetId, expandedClass])
+  }, [targetClass, expandedClass])
 
   return isExpanded
 }
