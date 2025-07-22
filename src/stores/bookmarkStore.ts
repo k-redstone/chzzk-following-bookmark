@@ -45,13 +45,11 @@ async function setState(state: BookmarkState): Promise<void> {
 
 // 전체 데이터 불러오기
 export async function getBookmarkState(): Promise<BookmarkState> {
-  console.log('fetch')
   return getState()
 }
 
 // 전체 데이터 저장
 export async function saveBookmarkState(state: BookmarkState): Promise<void> {
-  console.log('save')
   await setState(state)
 }
 

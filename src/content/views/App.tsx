@@ -98,11 +98,8 @@ export default function App() {
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={async (event) => {
-            console.log(isFetching)
             await handleDragEnd(event)
-            console.log(isFetching)
             invalidate()
-            console.log('end')
           }}
         >
           <BookmarkList />
