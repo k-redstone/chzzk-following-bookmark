@@ -4,6 +4,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragOverlay,
+  type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { Plus, ChevronDown, FolderPlus, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
@@ -25,13 +27,10 @@ export default function App() {
       },
     }),
   )
-  const {
-    data: bookmarkData,
-    isSuccess,
-    isFetching,
-    invalidate,
-  } = useBookmarkState()
+  const { data: bookmarkData, isSuccess, invalidate } = useBookmarkState()
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
+
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
   const {
     isOpen: isOpenCreateFolderModal,
@@ -97,12 +96,14 @@ export default function App() {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={(event) => setActiveId(event.active.id)}
           onDragEnd={async (event) => {
             await handleDragEnd(event)
             invalidate()
           }}
         >
           <BookmarkList />
+          <DragOverlay>{activeId && null}</DragOverlay>
         </DndContext>
       )}
     </>

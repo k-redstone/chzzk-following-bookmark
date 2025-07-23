@@ -50,8 +50,17 @@ export default function StreamerItem({
     }
   }
 
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: streamer.id, animateLayoutChanges: animateLayoutChanges })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: streamer.id,
+    animateLayoutChanges: animateLayoutChanges,
+  })
   const { style } = useDndStyle(transform, transition)
 
   if (!isNavExpanded) {
@@ -64,7 +73,7 @@ export default function StreamerItem({
           />
         )}
         <div
-          className="relative flex items-center justify-center py-2"
+          className={`relative flex items-center justify-center py-2 ${isDragging && `bg-bg-04 opacity-50`}`}
           ref={setNodeRef}
           style={style}
           {...attributes}
@@ -120,7 +129,7 @@ export default function StreamerItem({
         />
       )}
       <div
-        className={`hover:bg-bg-04 relative flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5`}
+        className={`hover:bg-bg-04 relative flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5 ${isDragging && `bg-bg-04 opacity-50`}`}
         ref={setNodeRef}
         style={style}
         {...attributes}

@@ -37,8 +37,14 @@ export default function FolderItem({ folder }: IFolderItemProps) {
 
   const { data: bookmarkData } = useBookmarkState()
 
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: folder.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: folder.id })
 
   const { style } = useDndStyle(transform, transition)
   const {
@@ -70,7 +76,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   if (!isNavExpanded) {
     return (
       <div
-        className={`${isOpenFolder && `bg-bg-04 rounded`}`}
+        className={`${isOpenFolder && `bg-bg-04 rounded`} ${isDragging && `bg-bg-04 opacity-50`}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
@@ -156,7 +162,9 @@ export default function FolderItem({ folder }: IFolderItemProps) {
         style={style}
         {...attributes}
       >
-        <div className="hover:bg-bg-04 flex cursor-pointer items-center justify-between rounded pl-1">
+        <div
+          className={`hover:bg-bg-04 flex cursor-pointer items-center justify-between rounded pl-1 ${isDragging && `bg-bg-04 opacity-50`}`}
+        >
           <div
             className="flex min-w-0 grow items-center space-x-2"
             {...listeners}
@@ -233,7 +241,9 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   items={node.items}
                   strategy={verticalListSortingStrategy}
                 >
-                  <ul className="border-l-bg-chzzk-04 ml-4 flex flex-col gap-y-1 border-l-2">
+                  <ul
+                    className={`border-l-bg-chzzk-04 ${isDragging && `bg-bg-04 opacity-50`} ml-4 flex flex-col gap-y-1 border-l-2`}
+                  >
                     {node.items.map((item) => (
                       <li key={item.id}>
                         <StreamerItem
