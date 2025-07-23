@@ -1,5 +1,5 @@
 {
-  "name": "chzzk-following-folder",
+  "name": "chzzk-following-bookmark",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -35,6 +35,7 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "vite-plugin-zip-pack": "^1.2.4"
   }
 }
