@@ -1,69 +1,48 @@
-# React + TypeScript + Vite
+# 치지직 팔로잉 북마크
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> 치지직 팔로잉 북마크 및 정리
 
-Currently, two official plugins are available:
+## 주요기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 팔로잉 스트리머 북마크 추가
+- 북마크 폴더 정리
+- 드래그를 통한 정리 기능
 
-## Expanding the ESLint configuration
+![스크린샷 1](./docs/images/1.png)  
+![스크린샷 2](./docs/images/2.png)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+기존 치지직 사이드바에 북마크 탭을 추가했습니다.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+북마크에 스트리머를 추가할 때 자신의 팔로잉 목록을 기반으로 손쉽게 추가할 수 있습니다.  
+팔로잉 목록에 없는 스트리머는 UUID를 통해 추가 가능합니다.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+북마크에서 스트리머를 삭제하려면 우클릭을 통해 가능하고, 폴더 삭제는 별도의 버튼을 통해 가능합니다.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+모든 기능은 치지직 로그인을 했을 시 정상 작동합니다.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+> 본 확장 프로그램을 사용하여 발생하는 결과에 대한 모든 책임은 사용자에게 있습니다.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 호환성 여부
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+현재 크롬 및 엣지에서만 사용가능합니다.
+
+추후 파이어폭스에서 사용가능하도록 수정 예정입니다.
+
+## FAQ
+
+- 북마크에서 스트리머를 삭제하는 법은 우클릭입니다.
+- 폴더내부에서 외부로 아이템 이동은 가능하지만 애니메이션이 정상적으로 작동하지 않습니다. 이 부분은 추후 수정 할 예정입니다.
+
+## 버그 제보 및 기능 문의
+
+- che06189@gmail.com
+
+## Build
+
+```bash
+# 의존성 설치
+yarn install
+
+# 빌드 후 realse 폴더 내부에 realse.zip가 생성
+yarn run build
 ```
