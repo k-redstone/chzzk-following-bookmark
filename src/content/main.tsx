@@ -7,7 +7,10 @@ import styles from '../index.css?inline'
 import type { ISettingState } from '@/types/setting'
 
 import { TAB_INDEX } from '@/constants'
-import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
+import {
+  ASIDE_CONTENT_TARGET_CLASS,
+  NAV_WRAPPER_CLASS,
+} from '@/constants/chzzkEl'
 import App from '@/content/views/App'
 import createShadowRoot from '@/utils/createShadowRoot'
 import { sendRuntimeMessage } from '@/utils/helper'
@@ -21,7 +24,7 @@ import { sendRuntimeMessage } from '@/utils/helper'
   // 탭 상태 적용 함수
   const updateTabs = async () => {
     const setting = await sendRuntimeMessage<ISettingState>('getSettingState')
-    const tabList = target.querySelectorAll('.navigation_bar_section__hDpyD')
+    const tabList = target.querySelectorAll(`.${NAV_WRAPPER_CLASS}`)
     applyTabVisibility(setting, tabList)
   }
 
@@ -30,7 +33,7 @@ import { sendRuntimeMessage } from '@/utils/helper'
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg?.type === 'UPDATE_SETTING' && msg.state) {
-      const tabList = target.querySelectorAll('.navigation_bar_section__hDpyD')
+      const tabList = target.querySelectorAll(`.${NAV_WRAPPER_CLASS}`)
       applyTabVisibility(msg.state, tabList)
     }
   })
