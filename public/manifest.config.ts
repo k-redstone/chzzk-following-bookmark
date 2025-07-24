@@ -23,6 +23,10 @@ export default {
       'https://chzzk.naver.com/*',
       'https://api.chzzk.naver.com/*',
     ],
+
+    action: {
+      default_popup: 'src/popup/index.html',
+    },
     permissions: ['storage'],
   }),
 }

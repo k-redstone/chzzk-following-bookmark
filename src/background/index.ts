@@ -4,8 +4,10 @@ import type {
   ILiveContent,
   IChannelContent,
 } from '@/types/follow'
+import type { ISettingState } from '@/types/setting'
 
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
+import { getSettingState } from '@/stores/settingStore'
 
 console.log('bg loaded')
 
@@ -53,6 +55,23 @@ async function fetchChannelStatus(hashId: string) {
   return channelStatus.content
 }
 
+// 세팅값 전파
+async function setSettingState(rawState: string): Promise<boolean> {
+  const newState: ISettingState = JSON.parse(rawState)
+  // 모든 탭에 변경사항 브로드캐스트
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      if (tab.id) {
+        chrome.tabs.sendMessage(tab.id, {
+          type: 'UPDATE_SETTING',
+          state: newState,
+        })
+      }
+    })
+  })
+  return true
+}
+
 // 헬퍼 함수들
 
 const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
@@ -60,6 +79,8 @@ const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
     fetchFollowList,
     fetchStreamerLiveStatus,
     fetchChannelStatus,
+    getSettingState,
+    setSettingState,
   }
 
 chrome.runtime.onMessage.addListener(
