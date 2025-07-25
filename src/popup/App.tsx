@@ -9,7 +9,7 @@ export default function App() {
   if (!isSuccess) return null
 
   return (
-    <div className="min-w-60 bg-[#1c1d1f] p-5 text-white">
+    <div className="min-w-64 bg-[#1c1d1f] p-5 text-white">
       <DividerSection>
         <div className="flex flex-col gap-y-2">
           <h2 className="font-bold">사이드바 설정</h2>
@@ -53,12 +53,11 @@ export default function App() {
           <h2 className="font-bold">통나무 파워</h2>
           <ToggleSwitch
             checked={data.chatting_power}
-            disabled={true}
             onChange={async () => {
               await toggleSettingTab('chatting_power')
               invalidate()
             }}
-            label="통나무 1시간 (BETA)"
+            label="1시간 라이브 인증 (BETA)"
           />
         </div>
       </DividerSection>

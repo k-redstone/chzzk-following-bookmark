@@ -7,13 +7,13 @@ import styles from '../index.css?inline'
 import type { ISettingState } from '@/types/setting'
 
 import { TAB_INDEX } from '@/constants'
-import {
-  ASIDE_CONTENT_TARGET_CLASS,
-  NAV_WRAPPER_CLASS,
-} from '@/constants/chzzkEl'
+import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
 import App from '@/content/views/App'
+import { handleLiveChatPower } from '@/utils/chatPowerAutoClick'
 import createShadowRoot from '@/utils/createShadowRoot'
 import { sendRuntimeMessage } from '@/utils/helper'
+import { observeTabList } from '@/utils/mutationObserver'
+import { applyTabVisibility } from '@/utils/tabvisibility'
 ;(async () => {
   const target = document.querySelector(`.${ASIDE_CONTENT_TARGET_CLASS}`)
   if (!target) return
@@ -21,24 +21,26 @@ import { sendRuntimeMessage } from '@/utils/helper'
   const shadowRoot = createShadowRoot(target, [styles])
   const queryClient = new QueryClient()
 
-  // 탭 상태 적용 함수
-  const updateTabs = async () => {
+  async function syncAllFeatures() {
+    console.log('debug: syncAllFeatures')
     const setting = await sendRuntimeMessage<ISettingState>('getSettingState')
-    const tabList = target.querySelectorAll(`.${NAV_WRAPPER_CLASS}`)
-    applyTabVisibility(setting, tabList)
+    if (target) {
+      applyTabVisibility(setting, target, TAB_INDEX)
+      handleLiveChatPower(Boolean(setting.chatting_power))
+    }
   }
 
-  // 최초 적용
-  await updateTabs()
+  syncAllFeatures()
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg?.type === 'UPDATE_SETTING' && msg.state) {
-      const tabList = target.querySelectorAll(`.${NAV_WRAPPER_CLASS}`)
-      applyTabVisibility(msg.state, tabList)
+      applyTabVisibility(msg.state, target, TAB_INDEX)
+      handleLiveChatPower(Boolean(msg.state.chatting_power))
     }
   })
 
-  const observer = observeTabList(target, updateTabs)
+  const observer = observeTabList(target, syncAllFeatures)
+  window.addEventListener('unload', () => observer.disconnect())
 
   createRoot(shadowRoot).render(
     <StrictMode>
@@ -47,31 +49,4 @@ import { sendRuntimeMessage } from '@/utils/helper'
       </QueryClientProvider>
     </StrictMode>,
   )
-  window.addEventListener('unload', () => observer.disconnect())
 })()
-
-function observeTabList(
-  target: Element,
-  applySetting: () => void,
-): MutationObserver {
-  const observer = new MutationObserver(() => {
-    applySetting()
-  })
-  observer.observe(target, { childList: true, subtree: false })
-  return observer
-}
-
-function applyTabVisibility(
-  setting: ISettingState,
-  tabList: NodeListOf<Element>,
-) {
-  Object.entries(setting).forEach(([key, value]) => {
-    if (key in TAB_INDEX) {
-      const idx = TAB_INDEX[key as keyof typeof TAB_INDEX]
-      const tab = tabList[idx]
-      if (tab instanceof HTMLElement) {
-        tab.style.display = value ? '' : 'none'
-      }
-    }
-  })
-}
