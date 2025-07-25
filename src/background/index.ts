@@ -10,8 +10,6 @@ import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
 import { getBookmarkState } from '@/stores/bookmarkStore'
 import { getSettingState } from '@/stores/settingStore'
 
-console.log('bg loaded')
-
 async function request<T>(path: string): Promise<IChzzkResponse<T>> {
   const url = new URL(path)
 
@@ -33,7 +31,6 @@ async function request<T>(path: string): Promise<IChzzkResponse<T>> {
 // 팔로우 목록 fetch
 async function fetchFollowList() {
   const followList = await request<IFollowingListContent>(FETCH_FOLLOWING_URL)
-  console.log(followList.content)
   return followList.content
 }
 
@@ -42,7 +39,6 @@ async function fetchStreamerLiveStatus(hashId: string) {
   const liveStatus = await request<ILiveContent>(
     `https://api.chzzk.naver.com/polling/v3.1/channels/${hashId}/live-status`,
   )
-  console.log(liveStatus)
   return liveStatus.content
 }
 
@@ -51,7 +47,6 @@ async function fetchChannelStatus(hashId: string) {
   const channelStatus = await request<IChannelContent>(
     `https://api.chzzk.naver.com/service/v1/channels/${hashId}`,
   )
-  console.log(channelStatus)
   if (channelStatus.content?.channelId === null) return null
   return channelStatus.content
 }

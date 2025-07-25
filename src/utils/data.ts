@@ -45,7 +45,6 @@ export function readJsonFile(file: File): Promise<IImportData> {
 }
 
 export function isValidImportData(data: IImportData): boolean {
-  console.log(data)
   if (
     typeof data !== 'object' ||
     data === null ||
@@ -100,7 +99,6 @@ export function isBookmarkState(data: unknown): data is BookmarkState {
 
 function isISettingState(data: unknown): data is ISettingState {
   if (typeof data !== 'object' || data === null) return false
-  console.log('setting', data)
 
   const keys: (keyof ISettingState)[] = [
     'following',

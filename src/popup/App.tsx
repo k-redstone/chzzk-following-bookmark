@@ -19,7 +19,6 @@ export default function App() {
         tabId,
         { type: 'EXPORT_BOOKMARK_DATA' },
         (response) => {
-          console.log(response)
           resolve(response)
         },
       )
