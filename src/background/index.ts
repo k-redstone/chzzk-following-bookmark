@@ -7,6 +7,7 @@ import type {
 import type { ISettingState } from '@/types/setting'
 
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
+import { getBookmarkState } from '@/stores/bookmarkStore'
 import { getSettingState } from '@/stores/settingStore'
 
 console.log('bg loaded')
@@ -81,6 +82,7 @@ const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
     fetchChannelStatus,
     getSettingState,
     setSettingState,
+    getBookmarkState,
   }
 
 chrome.runtime.onMessage.addListener(

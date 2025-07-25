@@ -5,3 +5,8 @@ export interface ISettingState {
   service: boolean
   chatting_power: boolean
 }
+
+export interface IImportMsg {
+  message: string
+  variant: 'error' | 'success'
+}

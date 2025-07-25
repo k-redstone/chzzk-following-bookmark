@@ -9,6 +9,7 @@ import type { ISettingState } from '@/types/setting'
 import { TAB_INDEX } from '@/constants'
 import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
 import App from '@/content/views/App'
+import { getBookmarkState, saveBookmarkState } from '@/stores/bookmarkStore'
 import { handleLiveChatPower } from '@/utils/chatPowerAutoClick'
 import createShadowRoot from '@/utils/createShadowRoot'
 import { sendRuntimeMessage } from '@/utils/helper'
@@ -32,10 +33,23 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
 
   syncAllFeatures()
 
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg?.type === 'UPDATE_SETTING' && msg.state) {
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (msg.type === 'UPDATE_SETTING' && msg.state) {
       applyTabVisibility(msg.state, target, TAB_INDEX)
       handleLiveChatPower(Boolean(msg.state.chatting_power))
+    }
+
+    if (msg.type === 'EXPORT_BOOKMARK_DATA') {
+      getBookmarkState().then((data) => {
+        sendResponse(data)
+      })
+      return true
+    }
+    if (msg.type === 'IMPORT_BOOKMARK_DATA') {
+      saveBookmarkState(msg.data).then(() => {
+        sendResponse({ ok: true })
+      })
+      return true
     }
   })
 

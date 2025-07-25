@@ -8,11 +8,14 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { Plus, ChevronDown, FolderPlus, ChevronUp } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import type { IImportMsg } from '@/types/setting'
 
 import BookmarkList from '@/content/components/BookmarkList'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
+import ImportErrorModal from '@/content/components/modal/ImportErrorModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
@@ -29,6 +32,7 @@ export default function App() {
   )
   const { data: bookmarkData, isSuccess, invalidate } = useBookmarkState()
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
+  const [errorMsg, setErrorMsg] = useState<IImportMsg>()
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
@@ -42,9 +46,29 @@ export default function App() {
     openModal: openAddItemModal,
     closeModal: closeAddItemModall,
   } = useModal()
+  const {
+    isOpen: isImportErrorModal,
+    openModal: openImportErrorModal,
+    closeModal: closeImportErrorModal,
+  } = useModal()
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (msg.type === 'IMPORT_ERROR' && msg.payload) {
+        openImportErrorModal()
+        setErrorMsg(msg.payload)
+      }
+    })
+  }, [])
 
   return (
     <>
+      {isImportErrorModal && (
+        <ImportErrorModal
+          handleModalClose={closeImportErrorModal}
+          payload={errorMsg}
+        />
+      )}
       {isOpenCreateFolderModal && (
         <CreateFolderModal handleModalClose={closeCreateFolderModal} />
       )}
