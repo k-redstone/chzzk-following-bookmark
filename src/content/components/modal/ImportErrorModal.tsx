@@ -18,7 +18,8 @@ export default function ImportErrorModal({
           <h1
             className={`text-base font-extrabold ${payload?.variant === 'success' ? `text-bg-chzzk-04` : 'text-content-card-1000000'}`}
           >
-            {payload ? payload.message : ''}
+            <p>{payload ? payload.message : ''}</p>
+            {payload?.variant === 'success' && <p>새로고침을 해주세요.</p>}
           </h1>
         </div>
       </div>

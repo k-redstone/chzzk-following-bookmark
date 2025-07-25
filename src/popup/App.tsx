@@ -55,6 +55,7 @@ export default function App() {
 
       if (!isValidImportData(json)) {
         chrome.tabs.sendMessage(tab.id, {
+          type: 'IMPORT_ERROR',
           payload: {
             message: '데이터 불러오기 실패',
             variant: 'error',
@@ -72,6 +73,7 @@ export default function App() {
         (res) => {
           if (res.ok) {
             chrome.tabs.sendMessage(tabId, {
+              type: 'IMPORT_ERROR',
               payload: {
                 message: '데이터 불러오기 성공',
                 variant: 'success',
@@ -79,6 +81,7 @@ export default function App() {
             })
           } else {
             chrome.tabs.sendMessage(tabId, {
+              type: 'IMPORT_ERROR',
               payload: {
                 message: '데이터 불러오기 실패',
                 variant: 'error',
@@ -92,6 +95,7 @@ export default function App() {
         const tab = tabs[0]
         if (tab && tab.id != null) {
           chrome.tabs.sendMessage(tab.id, {
+            type: 'IMPORT_ERROR',
             payload: {
               message: `불러오기 에러: ${err instanceof Error ? err.message : '알 수 없는 에러'}`,
               variant: 'error',
