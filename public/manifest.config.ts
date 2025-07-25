@@ -21,6 +21,7 @@ export default {
     icons: {
       '48': 'public/icon-48.png',
       '96': 'public/icon-96.png',
+      '128': 'public/icon-128.png',
     },
 
     host_permissions: [
@@ -35,6 +36,5 @@ export default {
       },
       default_popup: 'src/popup/index.html',
     },
-    permissions: ['storage'],
   }),
 }
