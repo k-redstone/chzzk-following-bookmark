@@ -139,6 +139,18 @@ body {
   --color-content-purple-rgb: 122, 122, 255;
 }
 
+@theme {
+  --animate-spin-once: spin-once 1s linear;
+  @keyframes spin-once {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
 @font-face {
   font-family: 'Paperlogy';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2')

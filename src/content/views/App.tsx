@@ -7,7 +7,13 @@ import {
   DragOverlay,
   type UniqueIdentifier,
 } from '@dnd-kit/core'
-import { Plus, ChevronDown, FolderPlus, ChevronUp } from 'lucide-react'
+import {
+  Plus,
+  ChevronDown,
+  FolderPlus,
+  ChevronUp,
+  RotateCw,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import type { IImportMsg } from '@/types/setting'
@@ -17,6 +23,7 @@ import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
 import ImportErrorModal from '@/content/components/modal/ImportErrorModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
+import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
 import { handleDragEnd } from '@/utils/helper'
@@ -31,7 +38,9 @@ export default function App() {
     }),
   )
   const { data: bookmarkData, isSuccess, invalidate } = useBookmarkState()
+  const { invalidateAll: invalidateAllLiveStatus } = useStreamerLiveStatus()
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
+  const [isRotating, setIsRotating] = useState<boolean>(false)
   const [errorMsg, setErrorMsg] = useState<IImportMsg>()
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
@@ -80,39 +89,55 @@ export default function App() {
       )}
 
       {isNavExpanded ? (
-        <div className="text-content-05 flex items-center justify-between px-2">
+        <div className="text-content-05 flex items-center justify-between p-[5px]">
           <h2 className={`text-xs font-extrabold`}>팔로잉 북마크</h2>
           <div className="flex gap-x-1">
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded p-1 hover:text-white"
+              className="hover:bg-bg-layer-06 cursor-pointer rounded p-[3px] hover:text-white"
               onClick={() => openAddItemModal()}
             >
-              <Plus className="h-4.5 w-4.5" />
+              <Plus className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded p-1 hover:text-white"
+              className="hover:bg-bg-layer-06 cursor-pointer rounded p-[3px] hover:text-white"
               onClick={() => openCreateFolderModal()}
             >
-              <FolderPlus className="h-4.5 w-4.5 hover:text-white" />
+              <FolderPlus className="h-4 w-4 hover:text-white" />
             </button>
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded p-1 hover:text-white"
+              className="hover:bg-bg-layer-06 cursor-pointer rounded p-[3px] hover:text-white"
+              onClick={() => {
+                setIsRotating(true)
+                invalidateAllLiveStatus()
+
+                setTimeout(() => {
+                  setIsRotating(false)
+                }, 1000)
+              }}
+            >
+              <RotateCw
+                className={`h-3.5 w-3.5 ${isRotating && `animate-spin-once`}`}
+              />
+            </button>
+            <button
+              type="button"
+              className="hover:bg-bg-layer-06 cursor-pointer rounded hover:text-white"
               onClick={() => setOpenBookbark(!isOpenBookmark)}
             >
               {isOpenBookmark ? (
-                <ChevronUp className="h-4.5 w-4.5" />
+                <ChevronDown className="h-[17px] w-[17px]" />
               ) : (
-                <ChevronDown className="h-4.5 w-4.5" />
+                <ChevronUp className="h-[17px] w-[17px]" />
               )}
             </button>
           </div>
         </div>
       ) : (
-        <div className="text-content-05 mb-2 flex items-center justify-center">
-          <h2 className={`text-xs font-extrabold`}>북마크</h2>
+        <div className="text-content-04 flex items-center justify-center">
+          <h2 className={`text-[11px] font-bold`}>북마크</h2>
         </div>
       )}
 
@@ -126,8 +151,10 @@ export default function App() {
             invalidate()
           }}
         >
-          <BookmarkList />
-          <DragOverlay>{activeId && null}</DragOverlay>
+          <div className={`${isOpenBookmark ? 'mt-[5px]' : `mt-2.5`}`}>
+            <BookmarkList />
+            <DragOverlay>{activeId && null}</DragOverlay>
+          </div>
         </DndContext>
       )}
     </>
