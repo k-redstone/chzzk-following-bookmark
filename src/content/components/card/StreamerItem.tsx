@@ -102,7 +102,7 @@ export default function StreamerItem({
           }}
         >
           <div
-            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 hover:ring-4 ${isLive ? `dark:ring-border-chzzk-02 ring-bg-chzzk-light-01` : `dark:ring-bg-02 ring-white grayscale filter`}`}
+            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 hover:ring-4 ${isLive ? `dark:ring-border-chzzk-02 ring-bg-chzzk-light-01` : `dark:ring-bg-02 hover:ring-content-hover-01 ring-white grayscale filter`}`}
           >
             <img
               width={26}
