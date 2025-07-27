@@ -42,11 +42,15 @@ export default function StreamerItem({
     wasDragging,
   }) => (isSorting || wasDragging ? false : true)
 
-  const handleMoveToStreamer = () => {
-    if (isLive) {
-      window.location.assign(`/live/${streamer.hashId}`)
+  const handleMoveToStreamer = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    const url = isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`
+
+    if (e.ctrlKey || e.metaKey) {
+      window.open(url, '_blank')
     } else {
-      window.location.assign(`/${streamer.hashId}`)
+      window.location.href = url
     }
   }
 
@@ -73,12 +77,12 @@ export default function StreamerItem({
           />
         )}
         <div
-          className={`relative flex items-center justify-center py-2 ${isDragging && `bg-bg-04 opacity-50`}`}
+          className={`relative flex cursor-pointer items-center justify-center py-2 ${isDragging && `bg-bg-04 opacity-50`}`}
           ref={setNodeRef}
           style={style}
           {...attributes}
           {...listeners}
-          onClick={() => handleMoveToStreamer()}
+          onClick={(e) => handleMoveToStreamer(e)}
           onMouseEnter={() => {
             if (isLive) {
               openItemTooltip()
@@ -97,7 +101,7 @@ export default function StreamerItem({
           }}
         >
           <div
-            className={`box-border h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `border-border-chzzk-02 hover:ring-border-chzzk-02 hover:ring-[3px]` : `border-bg-02 grayscale filter`}`}
+            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 ${isLive ? `ring-border-chzzk-02 hover:ring-border-chzzk-02 hover:ring-4` : `ring-bg-02 hover:ring-bg-03 grayscale filter hover:ring-4`}`}
           >
             <img
               width={26}
@@ -134,7 +138,7 @@ export default function StreamerItem({
         style={style}
         {...attributes}
         {...listeners}
-        onClick={() => handleMoveToStreamer()}
+        onClick={(e) => handleMoveToStreamer(e)}
         onMouseEnter={() => {
           if (isLive) {
             openItemTooltip()
