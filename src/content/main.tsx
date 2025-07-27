@@ -56,7 +56,7 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
   const observer = observeTabList(target, syncAllFeatures)
   window.addEventListener('unload', () => observer.disconnect())
 
-  createRoot(shadowRoot).render(
+  createRoot(shadowRoot.children[0]).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <App />
