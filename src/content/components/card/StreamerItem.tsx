@@ -2,6 +2,7 @@ import { useSortable, type AnimateLayoutChanges } from '@dnd-kit/sortable'
 
 import type { BookmarkItem } from '@/types/bookmark'
 
+import { DEFAULT_IMAGE_URL } from '@/constants'
 import ItemTooltip from '@/content/components/ItemTooltip'
 import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirmModal'
 import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
@@ -106,7 +107,11 @@ export default function StreamerItem({
             <img
               width={26}
               height={26}
-              src={streamer.profileImageUrl}
+              src={
+                streamer.profileImageUrl === ''
+                  ? DEFAULT_IMAGE_URL
+                  : streamer.profileImageUrl
+              }
               alt={streamer.name}
               className={`aspect-auto h-full w-full object-cover`}
             />
@@ -133,7 +138,7 @@ export default function StreamerItem({
         />
       )}
       <div
-        className={`hover:bg-bg-04 relative flex cursor-pointer items-center gap-2 rounded py-1 pr-2 pl-1.5 ${isDragging && `bg-bg-04 opacity-50`}`}
+        className={`hover:bg-bg-04 relative flex cursor-pointer items-center rounded p-[5px] ${isDragging && `bg-bg-04 opacity-50`}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
@@ -162,12 +167,16 @@ export default function StreamerItem({
           <img
             width={26}
             height={26}
-            src={streamer.profileImageUrl}
+            src={
+              streamer.profileImageUrl === ''
+                ? DEFAULT_IMAGE_URL
+                : streamer.profileImageUrl
+            }
             alt={streamer.name}
             className={`aspect-auto h-full w-full object-cover`}
           />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="ml-2.5 flex min-w-0 flex-1 flex-col">
           <span className="truncate text-[13px] font-semibold">
             {streamer.name}
           </span>

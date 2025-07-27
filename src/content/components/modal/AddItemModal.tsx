@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
 import type { IFollowingItem, IChannelContent } from '@/types/follow'
 
+import { DEFAULT_IMAGE_URL } from '@/constants'
 import CommonModal from '@/content/components/modal/CommonModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useFollowList from '@/content/hooks/queries/useFollowList'
@@ -121,7 +122,11 @@ export default function AddItemModal({
                   <div className="h-10 w-10 overflow-hidden rounded-full">
                     <img
                       className="h-full w-full object-cover"
-                      src={follow.channel.channelImageUrl}
+                      src={
+                        follow.channel.channelImageUrl === ''
+                          ? DEFAULT_IMAGE_URL
+                          : follow.channel.channelImageUrl
+                      }
                       alt={follow.channel.channelName}
                     />
                   </div>
@@ -158,7 +163,11 @@ export default function AddItemModal({
                     <div className="h-10 w-10 overflow-hidden rounded-full">
                       <img
                         className="h-full w-full object-cover"
-                        src={streamer.profileImageUrl}
+                        src={
+                          streamer.profileImageUrl === ''
+                            ? DEFAULT_IMAGE_URL
+                            : streamer.profileImageUrl
+                        }
                         alt={streamer.name}
                       />
                     </div>

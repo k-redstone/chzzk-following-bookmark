@@ -9,6 +9,9 @@ export const KEY = 'bookmark-key'
 export const SETTING_KEY = 'setting-key'
 export const SETTING_STORE_NAME = 'setting'
 
+export const DEFAULT_IMAGE_URL =
+  'https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na'
+
 export const TAB_INDEX: Record<
   keyof Omit<ISettingState, 'chatting_power'>,
   number
