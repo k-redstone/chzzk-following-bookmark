@@ -76,7 +76,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   if (!isNavExpanded) {
     return (
       <div
-        className={`${isOpenFolder && `bg-bg-04 rounded`} ${isDragging && `bg-bg-04 opacity-50`}`}
+        className={`${isOpenFolder && `dark:bg-bg-04 bg-content-hover-02 rounded`} ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
@@ -84,7 +84,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
       >
         <div className="flex cursor-pointer items-center justify-between">
           <div
-            className="hover:bg-bg-04 relative flex w-full items-center justify-center rounded p-1"
+            className="dark:hover:bg-bg-04 hover:bg-content-hover-02 relative flex w-full items-center justify-center rounded p-1"
             onClick={() => setIsOpenFolder(!isOpenFolder)}
             onMouseEnter={() => {
               openItemTooltip()
@@ -96,7 +96,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             }}
           >
             {isOpenFolder ? (
-              <FolderOpen className="text-bg-chzzk-01 h-5 w-5" />
+              <FolderOpen className="dark:text-bg-chzzk-01 text-bg-chzzk-light-02 h-5 w-5" />
             ) : (
               <Folder className="h-5 w-5" />
             )}
@@ -163,7 +163,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
         {...attributes}
       >
         <div
-          className={`hover:bg-bg-04 flex cursor-pointer items-center justify-between rounded pl-1 ${isDragging && `bg-bg-04 opacity-50`}`}
+          className={`dark:hover:bg-bg-04 dark:bg-bg-01 hover:bg-content-hover-02 flex cursor-pointer items-center justify-between rounded bg-white pl-1 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
         >
           <div
             className="flex min-w-0 grow items-center space-x-2"
@@ -173,7 +173,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             }}
           >
             {isOpenFolder ? (
-              <FolderOpen className="text-bg-chzzk-01 h-5 w-5" />
+              <FolderOpen className="dark:text-bg-chzzk-01 text-bg-chzzk-light-02 h-5 w-5" />
             ) : (
               <Folder className="h-5 w-5" />
             )}
@@ -183,7 +183,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
           <div className="relative flex gap-x-1">
             <button
               type="button"
-              className={`hover:bg-bg-layer-03 cursor-pointer rounded p-1`}
+              className={`dark:hover:bg-bg-layer-03 hover:bg-content-hover-01 cursor-pointer rounded p-1`}
               onMouseDown={(e) => {
                 e.stopPropagation()
                 OpenAddItemModal()
@@ -193,7 +193,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             </button>
             <button
               type="button"
-              className={`hover:bg-bg-layer-03 cursor-pointer rounded p-1`}
+              className={`dark:hover:bg-bg-layer-03 hover:bg-content-hover-01 cursor-pointer rounded p-1`}
               onMouseDown={(e) => {
                 e.stopPropagation()
                 setShowPopup(!showPopup)
@@ -204,10 +204,10 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             {showPopup && (
               <div
                 ref={menuRef}
-                className="bg-bg-layer-02 absolute right-0.5 bottom-7 flex gap-x-1 rounded px-2 py-1"
+                className="dark:bg-bg-layer-02 bg-content-hover-02 absolute right-0.5 bottom-7 flex gap-x-1 rounded px-2 py-1"
               >
                 <button
-                  className="text-bg-chzzk-01 hover:bg-bg-layer-06 cursor-pointer rounded p-2"
+                  className="dark:text-bg-chzzk-01 text-bg-chzzk-light-01 dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded p-2"
                   onMouseDown={(e) => {
                     e.stopPropagation()
                     openEditFolderModal()
@@ -217,7 +217,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
-                  className="hover:bg-bg-layer-06 cursor-pointer rounded p-2 text-red-500"
+                  className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 text-warn-light cursor-pointer rounded p-2 dark:text-red-500"
                   onMouseDown={(e) => {
                     e.stopPropagation()
                     openDeleteFolderModal()
@@ -242,7 +242,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   strategy={verticalListSortingStrategy}
                 >
                   <ul
-                    className={`border-l-bg-chzzk-04 ${isDragging && `bg-bg-04 opacity-50`} ml-4 flex flex-col gap-y-1 border-l-2`}
+                    className={`dark:border-l-bg-chzzk-04 border-l-bg-chzzk-light-01 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`} ml-4 flex flex-col gap-y-1 border-l-2`}
                   >
                     {node.items.map((item) => (
                       <li key={item.id}>

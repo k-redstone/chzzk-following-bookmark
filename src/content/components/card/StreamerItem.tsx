@@ -78,7 +78,7 @@ export default function StreamerItem({
           />
         )}
         <div
-          className={`relative flex cursor-pointer items-center justify-center py-2 ${isDragging && `bg-bg-04 opacity-50`}`}
+          className={`relative flex cursor-pointer items-center justify-center py-2 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
           ref={setNodeRef}
           style={style}
           {...attributes}
@@ -102,7 +102,7 @@ export default function StreamerItem({
           }}
         >
           <div
-            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 ${isLive ? `ring-border-chzzk-02 hover:ring-border-chzzk-02 hover:ring-4` : `ring-bg-02 hover:ring-bg-03 grayscale filter hover:ring-4`}`}
+            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 hover:ring-4 ${isLive ? `dark:ring-border-chzzk-02 ring-bg-chzzk-light-01` : `dark:ring-bg-02 ring-white grayscale filter`}`}
           >
             <img
               width={26}
@@ -138,7 +138,7 @@ export default function StreamerItem({
         />
       )}
       <div
-        className={`hover:bg-bg-04 relative flex cursor-pointer items-center rounded p-[5px] ${isDragging && `bg-bg-04 opacity-50`}`}
+        className={`dark:hover:bg-bg-04 hover:bg-content-hover-01 relative flex cursor-pointer items-center rounded p-[5px] ${isDragging && `dark:bg-bg-04 bg-content-02 opacity-50`}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
@@ -162,7 +162,7 @@ export default function StreamerItem({
         }}
       >
         <div
-          className={`border-bg-02 h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `border-bg-chzzk-04` : `grayscale filter`}`}
+          className={`h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `dark:border-bg-chzzk-04 border-bg-chzzk-light-01` : `dark:border-bg-02 border-white grayscale filter`}`}
         >
           <img
             width={26}
@@ -181,16 +181,18 @@ export default function StreamerItem({
             {streamer.name}
           </span>
           {isLive && (
-            <span className="truncate text-[11px] text-gray-400">
+            <span className="text-bg-05 truncate text-[11px] dark:text-gray-400">
               {liveStatusData.liveCategoryValue}
             </span>
           )}
         </div>
         {isLive && (
           <div className="ml-2 flex items-center gap-1 text-xs">
-            <span className="text-[18px] leading-none text-[#FF5454]">•</span>
+            <span className="text-warn-light text-[18px] leading-none dark:text-[#FF5454]">
+              •
+            </span>
             {liveStatusData.concurrentUserCount > 0 && (
-              <span className="font-semibold text-[#FF5454]">
+              <span className="text-warn-light font-semibold dark:text-[#FF5454]">
                 {liveStatusData.concurrentUserCount.toLocaleString()}
               </span>
             )}

@@ -21,11 +21,11 @@ export default function DeleteItemConfirmModal({
 
   return (
     <CommonModal handleModalClose={handleModalClose}>
-      <div className="bg-foreground flex w-[32rem] flex-col gap-y-6 rounded-xl px-6 py-4 text-sm">
+      <div className="dark:bg-foreground flex w-[32rem] flex-col gap-y-6 rounded-xl bg-white px-6 py-4 text-sm">
         <div className="flex justify-center">
           <h1 className="text-base font-extrabold">북마크 삭제 안내</h1>
         </div>
-        <div className="bg-bg-04 h-0.5 w-full" />
+        <div className="dark:bg-bg-04 bg-content-hover-01 h-0.5 w-full" />
         <div className="flex flex-col items-center justify-between">
           <span>[{streamer.name}]</span>
           <span>북마크를 삭제 하시겠습니까?</span>
@@ -33,14 +33,14 @@ export default function DeleteItemConfirmModal({
         <div className="flex justify-center gap-x-2 p-5">
           <button
             type="button"
-            className="bg-bg-04 hover:bg-bg-05 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold text-white"
+            className="dark:dark:bg-bg-04 dark:hover:bg-bg-05 bg-content-hover-01 hover:bg-content-hover-02 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold"
             onClick={handleModalClose}
           >
             취소
           </button>
           <button
             type="button"
-            className="bg-bg-chzzk-01 hover:bg-bg-chzzk-03 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold text-black"
+            className="dark:bg-bg-chzzk-01 dark:hover:bg-bg-chzzk-03 border-bg-chzzk-light-01 text-bg-chzzk-light-01 hover:bg-content-hover-01 w-full cursor-pointer rounded-2xl border bg-white px-5 py-3 font-semibold dark:text-black"
             onClick={() => handleRemoveItem()}
           >
             삭제

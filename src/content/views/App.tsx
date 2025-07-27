@@ -94,21 +94,21 @@ export default function App() {
           <div className="flex gap-x-1">
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded p-[3px] hover:text-white"
+              className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded p-[3px] dark:hover:text-white"
               onClick={() => openAddItemModal()}
             >
               <Plus className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded p-[3px] hover:text-white"
+              className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded p-[3px] dark:hover:text-white"
               onClick={() => openCreateFolderModal()}
             >
-              <FolderPlus className="h-4 w-4 hover:text-white" />
+              <FolderPlus className="w h-4" />
             </button>
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded p-[3px] hover:text-white"
+              className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded p-[3px] dark:hover:text-white"
               onClick={() => {
                 setIsRotating(true)
                 invalidateAllLiveStatus()
@@ -124,7 +124,7 @@ export default function App() {
             </button>
             <button
               type="button"
-              className="hover:bg-bg-layer-06 cursor-pointer rounded hover:text-white"
+              className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded dark:hover:text-white"
               onClick={() => setOpenBookbark(!isOpenBookmark)}
             >
               {isOpenBookmark ? (
@@ -136,7 +136,7 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <div className="text-content-04 flex items-center justify-center">
+        <div className="text-bg-05 flex items-center justify-center">
           <h2 className={`text-[11px] font-bold`}>북마크</h2>
         </div>
       )}
