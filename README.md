@@ -39,6 +39,10 @@
 - 북마크에서 스트리머를 삭제하는 법은 우클릭입니다.
 - 폴더내부에서 외부로 아이템 이동은 가능하지만 애니메이션이 정상적으로 작동하지 않습니다. 이 부분은 추후 수정 할 예정입니다.
 
+## 크롬 웹 스토어
+
+- [이동하기](https://chromewebstore.google.com/detail/%EC%B9%98%EC%A7%80%EC%A7%81-%ED%8C%94%EB%A1%9C%EC%9E%89-%EB%B6%81%EB%A7%88%ED%81%AC/nbnlaahmoodclieojdkinbajaobplhjg?hl=ko&utm_source=ext_sidebar)
+
 ## 버그 제보 및 기능 문의
 
 - che06189@gmail.com
