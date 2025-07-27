@@ -33,14 +33,14 @@ export default function DeleteItemConfirmModal({
         <div className="flex justify-center gap-x-2 p-5">
           <button
             type="button"
-            className="dark:dark:bg-bg-04 dark:hover:bg-bg-05 bg-content-hover-01 hover:bg-content-hover-02 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold"
+            className="dark:dark:bg-bg-04 dark:hover:bg-bg-05 bg-content-hover-02 hover:bg-content-hover-03 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold"
             onClick={handleModalClose}
           >
             취소
           </button>
           <button
             type="button"
-            className="dark:bg-bg-chzzk-01 dark:hover:bg-bg-chzzk-03 border-bg-chzzk-light-01 text-bg-chzzk-light-01 hover:bg-content-hover-01 w-full cursor-pointer rounded-2xl border bg-white px-5 py-3 font-semibold dark:text-black"
+            className="dark:bg-bg-chzzk-01 dark:hover:bg-bg-chzzk-03 bg-bg-chzzk-light-01 hover:bg-bg-chzzk-light-02 w-full cursor-pointer rounded-2xl border px-5 py-3 font-semibold text-white dark:text-black"
             onClick={() => handleRemoveItem()}
           >
             삭제
