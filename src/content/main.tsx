@@ -7,6 +7,7 @@ import styles from '../index.css?inline'
 import type { ISettingState } from '@/types/setting'
 
 import { TAB_INDEX } from '@/constants'
+import { SHADOW_HOST_ID } from '@/constants'
 import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
 import App from '@/content/views/App'
 import { getBookmarkState, saveBookmarkState } from '@/stores/bookmarkStore'
@@ -16,25 +17,62 @@ import { sendRuntimeMessage } from '@/utils/helper'
 import { observeTabList } from '@/utils/mutationObserver'
 import { applyTabVisibility } from '@/utils/tabvisibility'
 ;(async () => {
-  const target = document.querySelector(`.${ASIDE_CONTENT_TARGET_CLASS}`)
-  if (!target) return
+  const targetSelector = `.${ASIDE_CONTENT_TARGET_CLASS}`
 
-  const shadowRoot = createShadowRoot(target, [styles])
-  const queryClient = new QueryClient()
+  const mountApp = (target: Element) => {
+    if (document.getElementById(SHADOW_HOST_ID)) return
 
-  async function syncAllFeatures() {
-    console.log('debug: syncAllFeatures')
+    const shadowRoot = createShadowRoot(target, [styles])
+    const queryClient = new QueryClient()
+
+    createRoot(shadowRoot.children[0]).render(
+      <StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </StrictMode>,
+    )
+
+    const observer = observeTabList(target, syncAllFeatures)
+    window.addEventListener('unload', () => observer.disconnect())
+  }
+
+  const syncAllFeatures = async () => {
     const setting = await sendRuntimeMessage<ISettingState>('getSettingState')
+    const target = document.querySelector(targetSelector)
     if (target) {
       applyTabVisibility(setting, target, TAB_INDEX)
       handleLiveChatPower(Boolean(setting.chatting_power))
     }
   }
 
+  const observeTarget = () => {
+    const observer = new MutationObserver(() => {
+      const target = document.querySelector(targetSelector)
+
+      if (target && !document.getElementById(SHADOW_HOST_ID)) {
+        mountApp(target)
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+  }
+  const initialTarget = document.querySelector(targetSelector)
+
+  if (initialTarget && !document.getElementById(SHADOW_HOST_ID)) {
+    mountApp(initialTarget)
+  }
+
+  observeTarget()
   syncAllFeatures()
 
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    if (msg.type === 'UPDATE_SETTING' && msg.state) {
+    const target = document.querySelector(targetSelector)
+
+    if (msg.type === 'UPDATE_SETTING' && msg.state && target) {
       applyTabVisibility(msg.state, target, TAB_INDEX)
       handleLiveChatPower(Boolean(msg.state.chatting_power))
     }
@@ -52,15 +90,4 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
       return true
     }
   })
-
-  const observer = observeTabList(target, syncAllFeatures)
-  window.addEventListener('unload', () => observer.disconnect())
-
-  createRoot(shadowRoot.children[0]).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </StrictMode>,
-  )
 })()

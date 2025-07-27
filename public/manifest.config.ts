@@ -4,7 +4,7 @@ export default {
   manifest: defineManifest({
     manifest_version: 3,
     name: '치지직 팔로잉 북마크',
-    version: '1.1.0',
+    version: '1.2.0',
     description:
       '팔로우하고 있는 치지직 스트리머들의 목록을 북마크로 관리할 수 있습니다.',
     content_scripts: [
