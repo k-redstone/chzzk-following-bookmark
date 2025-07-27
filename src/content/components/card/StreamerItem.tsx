@@ -97,7 +97,7 @@ export default function StreamerItem({
           }}
         >
           <div
-            className={`border-bg-02 h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `border-border-chzzk-04 hover:border-border-chzzk-02` : `grayscale filter`}`}
+            className={`box-border h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `border-border-chzzk-02 hover:ring-border-chzzk-02 hover:ring-[3px]` : `border-bg-02 grayscale filter`}`}
           >
             <img
               width={26}

@@ -10,6 +10,15 @@ body {
 
 @theme {
   --tw-border-style: solid;
+  --tw-ring-inset: initial;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: transparent;
+  --tw-ring-color: rgba(147, 197, 253, 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-inset-shadow: 0 0 #0000;
+  --tw-inset-ring-shadow: 0 0 #0000;
   --font-sans: 'Paperlogy';
   --breakpoint-chzzk: 75rem;
   --color-background: rgb(20, 21, 23);
