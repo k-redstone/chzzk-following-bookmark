@@ -164,11 +164,11 @@ export default function StreamerItem({
           />
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[13px] font-extrabold">
+          <span className="truncate text-[13px] font-semibold">
             {streamer.name}
           </span>
           {isLive && (
-            <span className="truncate text-[12px] text-gray-400">
+            <span className="truncate text-[11px] text-gray-400">
               {liveStatusData.liveCategoryValue}
             </span>
           )}
