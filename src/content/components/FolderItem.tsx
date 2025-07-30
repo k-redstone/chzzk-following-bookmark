@@ -76,7 +76,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   if (!isNavExpanded) {
     return (
       <div
-        className={`${isOpenFolder && `dark:bg-bg-04 bg-content-hover-02 rounded`} ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
+        className={`mb-1 ${isOpenFolder && `dark:bg-bg-04 bg-content-hover-02 rounded`} ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
         ref={setNodeRef}
         style={style}
         {...attributes}
@@ -116,15 +116,23 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   strategy={verticalListSortingStrategy}
                 >
                   <ul className={`flex flex-col`}>
-                    {node.items.map((item) => (
-                      <li key={item.id}>
-                        <StreamerItem
-                          isNavExpanded={isNavExpanded}
-                          streamer={item}
-                          inFolder={true}
-                        />
-                      </li>
-                    ))}
+                    {node.items.length === 0 ? (
+                      <div className="p-[5px]">
+                        <p className="text-center text-[13px] text-white">
+                          추가된 스트리머가 없습니다.
+                        </p>
+                      </div>
+                    ) : (
+                      node.items.map((item) => (
+                        <li key={item.id}>
+                          <StreamerItem
+                            isNavExpanded={isNavExpanded}
+                            streamer={item}
+                            inFolder={true}
+                          />
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </SortableContext>
               )
@@ -245,15 +253,23 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   <ul
                     className={`dark:border-l-bg-chzzk-04 border-l-bg-chzzk-light-01 ml-4 flex flex-col border-l-2 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
                   >
-                    {node.items.map((item) => (
-                      <li key={item.id}>
-                        <StreamerItem
-                          isNavExpanded={isNavExpanded}
-                          streamer={item}
-                          inFolder={true}
-                        />
-                      </li>
-                    ))}
+                    {node.items.length === 0 ? (
+                      <div className="p-[5px]">
+                        <p className="text-content-05 text-center text-[13px]">
+                          추가된 스트리머가 없습니다.
+                        </p>
+                      </div>
+                    ) : (
+                      node.items.map((item) => (
+                        <li key={item.id}>
+                          <StreamerItem
+                            isNavExpanded={isNavExpanded}
+                            streamer={item}
+                            inFolder={true}
+                          />
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </SortableContext>
               )

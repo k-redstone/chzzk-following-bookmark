@@ -136,26 +136,34 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <div className="text-bg-05 flex items-center justify-center">
+        <div className="text-content-05 flex items-center justify-center">
           <h2 className={`text-[11px] font-bold`}>북마크</h2>
         </div>
       )}
 
-      {isOpenBookmark && isSuccess && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={(event) => setActiveId(event.active.id)}
-          onDragEnd={async (event) => {
-            await handleDragEnd(event)
-            invalidate()
-          }}
-        >
-          <div className={`${isOpenBookmark ? 'mt-[5px]' : `mt-2.5`}`}>
-            <BookmarkList />
-            <DragOverlay>{activeId && null}</DragOverlay>
-          </div>
-        </DndContext>
+      {isSuccess && bookmarkData.root.length === 0 ? (
+        <div>
+          <p className="text-content-04 text-center text-xs">
+            추가된 북마크가 없습니다.
+          </p>
+        </div>
+      ) : (
+        isOpenBookmark && (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={(event) => setActiveId(event.active.id)}
+            onDragEnd={async (event) => {
+              await handleDragEnd(event)
+              invalidate()
+            }}
+          >
+            <div className={`${isOpenBookmark ? 'mt-[5px]' : `mt-2.5`}`}>
+              <BookmarkList />
+              <DragOverlay>{activeId && null}</DragOverlay>
+            </div>
+          </DndContext>
+        )
       )}
     </>
   )
