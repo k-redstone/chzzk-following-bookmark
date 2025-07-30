@@ -164,13 +164,13 @@ export default function FolderItem({ folder }: IFolderItemProps) {
       >
         <div
           className={`dark:hover:bg-bg-04 dark:bg-bg-01 hover:bg-content-hover-02 flex cursor-pointer items-center justify-between rounded bg-white pl-1 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
+          onClick={() => {
+            setIsOpenFolder(!isOpenFolder)
+          }}
         >
           <div
             className="flex min-w-0 grow items-center space-x-2"
             {...listeners}
-            onClick={() => {
-              setIsOpenFolder(!isOpenFolder)
-            }}
           >
             {isOpenFolder ? (
               <FolderOpen className="dark:text-bg-chzzk-01 text-bg-chzzk-light-02 h-5 w-5" />
