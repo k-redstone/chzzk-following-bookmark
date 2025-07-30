@@ -8,17 +8,18 @@ import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirm
 import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useDndStyle from '@/content/hooks/useDndStyle'
 import useModal from '@/content/hooks/useModal'
-import useNavExpanded from '@/content/hooks/useNavExpanded'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
 
 interface IStreamerItemProps {
   streamer: BookmarkItem
   inFolder: boolean
+  isNavExpanded: boolean
 }
 
 export default function StreamerItem({
   streamer,
   inFolder,
+  isNavExpanded,
 }: IStreamerItemProps) {
   const { data: liveStatusData } = useStreamerLiveStatus(streamer.hashId)
   const {
@@ -35,7 +36,6 @@ export default function StreamerItem({
   const { show: showToolTipSection, hide: hideTooltipSection } =
     useShowTooltip()
 
-  const isNavExpanded = useNavExpanded()
   const isLive = liveStatusData?.status === 'OPEN'
 
   const animateLayoutChanges: AnimateLayoutChanges = ({

@@ -3,10 +3,11 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import StreamerItem from '@/content/components/card/StreamerItem'
 import FolderItem from '@/content/components/FolderItem'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
+import useNavExpanded from '@/content/hooks/useNavExpanded'
 
 export default function BookmarkList() {
   const { data: bookmarkData, isSuccess } = useBookmarkState()
-
+  const isNavExpanded = useNavExpanded()
   if (!isSuccess) return null
 
   return (
@@ -29,6 +30,7 @@ export default function BookmarkList() {
           return (
             <li key={node.id}>
               <StreamerItem
+                isNavExpanded={isNavExpanded}
                 streamer={node}
                 inFolder={false}
               />

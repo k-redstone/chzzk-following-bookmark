@@ -119,6 +119,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                     {node.items.map((item) => (
                       <li key={item.id}>
                         <StreamerItem
+                          isNavExpanded={isNavExpanded}
                           streamer={item}
                           inFolder={true}
                         />
@@ -247,6 +248,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                     {node.items.map((item) => (
                       <li key={item.id}>
                         <StreamerItem
+                          isNavExpanded={isNavExpanded}
                           streamer={item}
                           inFolder={true}
                         />
