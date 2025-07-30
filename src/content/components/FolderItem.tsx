@@ -115,7 +115,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   items={node.items}
                   strategy={verticalListSortingStrategy}
                 >
-                  <ul className={`flex flex-col gap-y-1`}>
+                  <ul className={`flex flex-col`}>
                     {node.items.map((item) => (
                       <li key={item.id}>
                         <StreamerItem
@@ -242,7 +242,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                   strategy={verticalListSortingStrategy}
                 >
                   <ul
-                    className={`dark:border-l-bg-chzzk-04 border-l-bg-chzzk-light-01 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`} ml-4 flex flex-col gap-y-1 border-l-2`}
+                    className={`dark:border-l-bg-chzzk-04 border-l-bg-chzzk-light-01 ml-4 flex flex-col border-l-2 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
                   >
                     {node.items.map((item) => (
                       <li key={item.id}>

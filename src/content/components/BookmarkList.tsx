@@ -14,7 +14,7 @@ export default function BookmarkList() {
       items={bookmarkData.root}
       strategy={verticalListSortingStrategy}
     >
-      <ul className={`flex flex-col gap-y-1`}>
+      <ul className={`flex flex-col`}>
         {bookmarkData.root.map((node) => {
           if (node.type === 'folder') {
             return (
