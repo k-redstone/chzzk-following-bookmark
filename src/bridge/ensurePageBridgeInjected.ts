@@ -1,32 +1,3 @@
-// export function ensurePageBridgeInjected(): Promise<void> {
-//   const MARK = 'data-preview-bridge-injected'
-//   const SCRIPT_ID = 'chzzk-preview-bridge'
-
-//   // 이미 마커가 있으면 종료
-//   if (document.documentElement.hasAttribute(MARK)) return Promise.resolve()
-
-//   // 같은 id의 스크립트가 있으면 종료
-//   if (document.getElementById(SCRIPT_ID)) return Promise.resolve()
-
-//   return new Promise((resolve, reject) => {
-//     const s = document.createElement('script')
-//     s.id = SCRIPT_ID
-//     s.src = chrome.runtime.getURL('page-bridge.esm.js')
-//     s.async = false
-//     s.onload = () => {
-//       // 주입 완료 표시 (중복 주입 방지 마커)
-//       document.documentElement.setAttribute(MARK, '1')
-//       // 스크립트 태그는 남겨둬도 되고, 제거해도 됨.
-//       // s.remove() // 필요하면 제거
-//       resolve()
-//     }
-//     s.onerror = () => reject(new Error('page-bridge load failed'))
-//     ;(document.head || document.documentElement).appendChild(s)
-//   })
-// }
-
-// ensurePageBridgeInjected.ts
-
 let inflight: Promise<void> | null = null
 
 export type PreviewBridge = {

@@ -33,7 +33,6 @@ function getWebpackChunkKey(win: Window): string {
 
 /**
  * 페이지의 Webpack 런타임에서 __webpack_require__를 안전하게 뽑아온다.
- * - any 금지: window를 Record<string, unknown>로 협소화
  * - 모듈 팩토리/런타임 시그니처 엄격 타이핑
  */
 export async function getWebpackRequire(): Promise<WebpackRequireFn> {
