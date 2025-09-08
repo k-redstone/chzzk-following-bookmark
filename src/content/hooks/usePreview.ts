@@ -76,7 +76,7 @@ export function usePreview(opts?: InlinePreviewOptions) {
       if (timers.current.delay) clearTimeout(timers.current.delay)
       if (timers.current.uptime) clearInterval(timers.current.uptime)
       timers.current.token = null
-      window.__previewBridge?.unmountPlayer()
+      window.dispatchEvent(new CustomEvent('preview:unmount'))
       setVisible(false)
       setProgressPct(0)
       setUptimeText(undefined)
@@ -88,7 +88,7 @@ export function usePreview(opts?: InlinePreviewOptions) {
     if (timers.current.delay) clearTimeout(timers.current.delay)
     if (timers.current.uptime) clearInterval(timers.current.uptime)
     timers.current.token = null
-    window.__previewBridge?.unmountPlayer()
+    window.dispatchEvent(new CustomEvent('preview:unmount'))
     setVisible(false)
     setProgressPct(0)
     setUptimeText(undefined)
@@ -140,13 +140,17 @@ export function usePreview(opts?: InlinePreviewOptions) {
         )
 
         try {
-          await bridge.mountPlayer({
-            containerId,
-            livePlayback: info.livePlayback,
-            volume: cfg.volume,
-            maxLevel: cfg.maxLevel,
-            token,
-          })
+          window.dispatchEvent(
+            new CustomEvent('preview:mount', {
+              detail: {
+                containerId,
+                livePlayback: info.livePlayback,
+                volume: cfg.volume,
+                maxLevel: cfg.maxLevel,
+                token,
+              },
+            }),
+          )
           setProgressPct(100)
         } catch {
           // 썸네일만 유지

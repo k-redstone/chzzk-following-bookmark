@@ -25,8 +25,10 @@ async function getWebpackRequire() {
 }
 
 // src/bridge/page-bridge.ts
-var LOG_PREFIX = "[preview-bridge]";
-function reportError(where, err, extra) {
+var LOG_PREFIX = "[preview-bridge:min]";
+var isDev = typeof process !== "undefined" && process.env?.NODE_ENV === "development";
+var logError = (where, err, extra) => {
+  if (!isDev) return;
   try {
     const payload = {
       where,
@@ -37,29 +39,44 @@ function reportError(where, err, extra) {
     console.error(LOG_PREFIX, payload);
   } catch {
   }
-}
-function isPlayerNamespace(ns) {
+};
+var isPlayerNs = (ns) => {
   if (!ns || typeof ns !== "object") return false;
-  const obj = ns;
-  const cp = obj["CorePlayer"];
-  const lp = obj["LiveProvider"];
-  const fromJSON = lp?.["fromJSON"];
-  return typeof cp === "function" && typeof fromJSON === "function";
-}
+  const o = ns;
+  return typeof o["CorePlayer"] === "function" && typeof o["LiveProvider"]?.["fromJSON"] === "function";
+};
+var getRoot = (p) => p?.shadowRoot ?? p?.root ?? p?.el ?? p?.element ?? null;
+var stopHtmlVideo = (root) => {
+  const v = root?.querySelector?.("video");
+  if (!v) return;
+  try {
+    v.pause();
+  } catch (e) {
+    logError("video.pause", e);
+  }
+  try {
+    v.removeAttribute("src");
+  } catch (e) {
+    logError("video.removeSrc", e);
+  }
+  try {
+    v.load();
+  } catch (e) {
+    logError("video.load", e);
+  }
+};
 async function resolvePlayerNamespace() {
   const __r = await getWebpackRequire();
   const ids = Object.keys(__r.m);
-  const candidates = ids.filter((id) => {
+  for (const id of ids) {
     try {
       const src = __r.m[id].toString();
-      return src.includes("CorePlayer") || src.includes("LiveProvider.fromJSON");
+      if (!src.includes("CorePlayer") && !src.includes("LiveProvider.fromJSON"))
+        continue;
+      const mod = __r(id);
+      if (isPlayerNs(mod)) return mod;
     } catch {
-      return false;
     }
-  });
-  for (const id of candidates) {
-    const mod = __r(id);
-    if (isPlayerNamespace(mod)) return mod;
   }
   throw new Error("Player namespace not found");
 }
@@ -70,52 +87,55 @@ async function fetchLiveDetail(uid) {
   );
   if (!r.ok) throw new Error("live-detail fetch failed");
   const j = await r.json();
-  if (!j || typeof j !== "object" || !("code" in j)) {
+  if (!j || typeof j !== "object" || !("code" in j))
     throw new Error("invalid live-detail response");
-  }
   const res = j;
   if (res.code !== 200) throw new Error("live-detail code != 200");
   const info = res.content;
-  if (!info.livePlayback && "livePlaybackJson" in res.content) {
-    const raw = res.content.livePlaybackJson;
-    if (typeof raw === "string") {
-      try {
-        const parsed = JSON.parse(raw);
-        info.livePlayback = parsed;
-      } catch {
-      }
+  if (!info.livePlayback && info.livePlaybackJson) {
+    try {
+      info.livePlayback = JSON.parse(
+        info.livePlaybackJson
+      );
+    } catch {
     }
   }
   return info;
 }
-var mounted = { player: null, container: null, token: null, cleanup: [] };
-function callIf(obj, name) {
-  const fn = obj?.[name];
-  if (typeof fn === "function") {
-    try {
-      fn.call(obj);
-    } catch (e) {
-      reportError(`callIf:${name}`, e);
-    }
-  }
-}
+var state = {
+  ns: null,
+  player: null,
+  container: null,
+  token: null
+};
 async function mountPlayer(params) {
   const { containerId, livePlayback, volume, maxLevel = 480, token } = params;
+  state.token = token;
   const ns = await resolvePlayerNamespace();
   const container = document.getElementById(containerId);
   if (!container) throw new Error("container not found");
-  if (mounted.cleanup?.length) {
-    mounted.cleanup.forEach((fn) => fn());
+  let player = state.player;
+  if (!player) {
+    player = new ns.CorePlayer();
+    state.player = player;
+    state.container = container;
   }
-  mounted = { player: null, container: null, token: null, cleanup: [] };
-  mounted.container = container;
-  mounted.token = token;
-  const previewPlayer = new ns.CorePlayer();
   container.innerHTML = "";
-  container.appendChild(previewPlayer.shadowRoot);
-  previewPlayer.muted = true;
-  previewPlayer.volume = volume;
-  previewPlayer.shadowRoot.style.visibility = "hidden";
+  const root = getRoot(player);
+  if (root) {
+    try {
+      root.style.visibility = "hidden";
+    } catch {
+    }
+    container.appendChild(root);
+  }
+  try {
+    ;
+    player.muted = true;
+    if (typeof volume === "number") player.volume = volume;
+  } catch (e) {
+    logError("player.props", e);
+  }
   const src = ns.LiveProvider.fromJSON(livePlayback, {
     devt: "HTML5_PC",
     serviceId: 2099,
@@ -123,107 +143,72 @@ async function mountPlayer(params) {
     p2pDisabled: true,
     maxLevel
   });
+  try {
+    ;
+    player.srcObject = src;
+  } catch (e) {
+    logError("player.srcObject", e);
+  }
   const onReady = async () => {
-    if (mounted.token !== token) return;
+    if (state.token !== token) return;
+    const root2 = getRoot(player);
+    if (root2) root2.style.visibility = "";
+    const video = root2?.querySelector?.("video");
     try {
-      if (previewPlayer.shadowRoot?.style)
-        previewPlayer.shadowRoot.style.visibility = "";
-    } catch {
-    }
-    try {
-      if (typeof previewPlayer.play === "function") await previewPlayer.play();
-      else previewPlayer.shadowRoot?.querySelector?.("video")?.play?.();
-    } catch {
+      if (video ? video.readyState >= 3 : true) {
+        if (typeof player.play === "function") {
+          await player.play();
+        } else {
+          await video?.play();
+        }
+      }
+    } catch (e) {
+      if (e?.name !== "AbortError") {
+        logError("player.play", e);
+      }
     }
   };
   try {
-    previewPlayer.addEventListener?.("loadedmetadata", onReady, { once: true });
+    ;
+    player.addEventListener?.("canplay", onReady, { once: true });
   } catch (e) {
-    reportError(`loadedmetadata`, e);
+    logError("addEventListener.canplay", e);
   }
-  previewPlayer.srcObject = src;
-  requestAnimationFrame(() => onReady());
-  mounted.cleanup.push(
-    () => {
-      try {
-        previewPlayer.removeEventListener?.("loadedmetadata", onReady);
-      } catch (e) {
-        reportError(`loadedmetadata`, e);
-      }
-    },
-    () => {
-      try {
-        previewPlayer.removeEventListener?.("canplay", onReady);
-      } catch (e) {
-        reportError(`remove canplay`, e);
-      }
-    },
-    () => {
-      try {
-        if ("src" in previewPlayer) previewPlayer.src = "";
-      } catch (e) {
-        reportError(`init src`, e);
-      }
-    },
-    () => {
-      callIf(previewPlayer, "pause");
-    },
-    () => {
-      callIf(previewPlayer, "stop");
-    },
-    () => {
-      callIf(previewPlayer, "destroy");
-    },
-    () => {
-      callIf(previewPlayer, "dispose");
-    },
-    () => {
-      callIf(previewPlayer, "unload");
-    },
-    () => {
-      try {
-        if (mounted.container) mounted.container.innerHTML = "";
-      } catch (e) {
-        reportError(`init container`, e);
-      }
-    }
-  );
-  mounted.player = previewPlayer;
 }
 function unmountPlayer() {
-  const fns = mounted.cleanup || [];
-  for (const fn of fns) {
-    try {
-      fn();
-    } catch (e) {
-      reportError(`unmount Error`, e);
-    }
+  state.token = null;
+  const player = state.player;
+  const container = state.container;
+  try {
+    stopHtmlVideo(getRoot(player));
+  } catch (e) {
+    logError("unmount.stopVideo", e);
   }
-  mounted = { player: null, container: null, token: null, cleanup: [] };
+  try {
+    if (player && "srcObject" in player)
+      player.srcObject = null;
+    if (player && "src" in player) player.src = "";
+  } catch (e) {
+    logError("unmount.srcReset", e);
+  }
+  try {
+    container && (container.innerHTML = "");
+  } catch (e) {
+    logError("unmount.container", e);
+  }
 }
+window.addEventListener("preview:mount", (ev) => {
+  void mountPlayer(ev.detail).catch((e) => logError("event.mount", e));
+});
+window.addEventListener("preview:unmount", () => {
+  try {
+    unmountPlayer();
+  } catch (e) {
+    logError("event.unmount", e);
+  }
+});
 window.__previewBridge = {
   fetchLiveDetail,
   mountPlayer,
   unmountPlayer
 };
-var api = { fetchLiveDetail, mountPlayer, unmountPlayer };
-window.addEventListener("message", async (ev) => {
-  const data = ev.data;
-  if (!data || data.__previewRPC !== true) return;
-  if (ev.source !== window) return;
-  const { id, method, args } = data;
-  try {
-    if (!(method in api)) throw new Error("unknown method");
-    const result = await api[method](...args ?? []);
-    const res = { __previewRPC: true, id, ok: true, result };
-    window.postMessage(res, "*");
-  } catch (e) {
-    const res = {
-      __previewRPC: true,
-      id,
-      ok: false,
-      error: e instanceof Error ? e.message : String(e)
-    };
-    window.postMessage(res, "*");
-  }
-});

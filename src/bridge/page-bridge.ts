@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   getWebpackRequire,
@@ -12,13 +14,16 @@ import type {
   PreviewMountParams,
 } from '@/types/preview-bridge'
 
-const LOG_PREFIX = '[preview-bridge]'
-
-function reportError(
+const LOG_PREFIX = '[preview-bridge:min]'
+const isDev =
+  typeof process !== 'undefined' && process.env?.NODE_ENV === 'development'
+/** ───────────────────────── utils ───────────────────────── */
+const logError = (
   where: string,
   err: unknown,
   extra?: Record<string, unknown>,
-) {
+) => {
+  if (!isDev) return
   try {
     const payload = {
       where,
@@ -27,114 +32,137 @@ function reportError(
       extra,
     }
     console.error(LOG_PREFIX, payload)
-  } catch {
-    // ignore Logging
+  } catch {}
+}
+
+const isPlayerNs = (ns: unknown): ns is PlayerNamespace => {
+  if (!ns || typeof ns !== 'object') return false
+  const o = ns as Record<string, unknown>
+  return (
+    typeof o['CorePlayer'] === 'function' &&
+    typeof (o['LiveProvider'] as any)?.['fromJSON'] === 'function'
+  )
+}
+
+const getRoot = (
+  p: {
+    shadowRoot?: HTMLElement
+    root?: HTMLElement
+    el?: HTMLElement
+    element?: HTMLElement
+  } | null,
+): HTMLElement | null => p?.shadowRoot ?? p?.root ?? p?.el ?? p?.element ?? null
+
+const stopHtmlVideo = (root: HTMLElement | null): void => {
+  const v = root?.querySelector?.('video') as HTMLVideoElement | null
+  if (!v) return
+  try {
+    v.pause()
+  } catch (e) {
+    logError('video.pause', e)
+  }
+  try {
+    v.removeAttribute('src')
+  } catch (e) {
+    logError('video.removeSrc', e)
+  }
+  try {
+    v.load()
+  } catch (e) {
+    logError('video.load', e)
   }
 }
 
-type LiveDetailResponse = { code: number; content: LiveInfo }
-
-function isPlayerNamespace(ns: unknown): ns is PlayerNamespace {
-  if (!ns || typeof ns !== 'object') return false
-  const obj = ns as Record<string, unknown>
-  const cp = obj['CorePlayer']
-  const lp = obj['LiveProvider']
-  const fromJSON = (lp as Record<string, unknown> | undefined)?.['fromJSON']
-  return typeof cp === 'function' && typeof fromJSON === 'function'
-}
-
+/** ───────────────────────── player ns ───────────────────────── */
 async function resolvePlayerNamespace(): Promise<PlayerNamespace> {
   const __r: WebpackRequireFn = await getWebpackRequire()
   const ids = Object.keys(__r.m) as Array<WebpackModuleId>
-  const candidates = ids.filter((id) => {
+  for (const id of ids) {
     try {
       const src = __r.m[id].toString()
-      return src.includes('CorePlayer') || src.includes('LiveProvider.fromJSON')
-    } catch {
-      return false
-    }
-  })
-
-  for (const id of candidates) {
-    const mod = __r(id)
-
-    if (isPlayerNamespace(mod)) return mod
+      if (!src.includes('CorePlayer') && !src.includes('LiveProvider.fromJSON'))
+        continue
+      const mod = __r(id)
+      if (isPlayerNs(mod)) return mod
+    } catch {}
   }
   throw new Error('Player namespace not found')
 }
 
+/** ───────────────────────── data fetch ───────────────────────── */
+type LiveDetailResponse = { code: number; content: LiveInfo }
 async function fetchLiveDetail(uid: string): Promise<LiveInfo> {
   const r = await fetch(
     `https://api.chzzk.naver.com/service/v3.2/channels/${uid}/live-detail`,
     { credentials: 'include' },
   )
   if (!r.ok) throw new Error('live-detail fetch failed')
-  const j: unknown = await r.json()
-
-  if (!j || typeof j !== 'object' || !('code' in j)) {
+  const j = (await r.json()) as unknown
+  if (!j || typeof j !== 'object' || !('code' in j))
     throw new Error('invalid live-detail response')
-  }
+
   const res = j as LiveDetailResponse
   if (res.code !== 200) throw new Error('live-detail code != 200')
 
   const info = res.content
-  if (
-    !info.livePlayback &&
-    'livePlaybackJson' in (res.content as Record<string, unknown>)
-  ) {
-    const raw = (res.content as Record<string, unknown>).livePlaybackJson
-    if (typeof raw === 'string') {
-      try {
-        const parsed = JSON.parse(raw) as LivePlayback
-        info.livePlayback = parsed
-      } catch {
-        // ignore parse error
-      }
-    }
+  if (!info.livePlayback && (info as any).livePlaybackJson) {
+    try {
+      info.livePlayback = JSON.parse(
+        (info as any).livePlaybackJson,
+      ) as LivePlayback
+    } catch {}
   }
   return info
 }
 
-let mounted: {
-  player: any | null
+/** ───────────────────────── minimal state ───────────────────────── */
+const state: {
+  ns: PlayerNamespace | null
+  player: unknown | null
   container: HTMLElement | null
   token: string | null
-  cleanup: Array<() => void>
-} = { player: null, container: null, token: null, cleanup: [] }
-
-function callIf(obj: any, name: string) {
-  const fn = obj?.[name]
-  if (typeof fn === 'function') {
-    try {
-      fn.call(obj)
-    } catch (e) {
-      reportError(`callIf:${name}`, e)
-    }
-  }
+} = {
+  ns: null,
+  player: null,
+  container: null,
+  token: null,
 }
+
+/** ───────────────────────── core: mount/unmount ───────────────────────── */
 
 async function mountPlayer(params: PreviewMountParams): Promise<void> {
   const { containerId, livePlayback, volume, maxLevel = 480, token } = params
+  state.token = token
 
   const ns = await resolvePlayerNamespace()
   const container = document.getElementById(containerId)
   if (!container) throw new Error('container not found')
 
-  if (mounted.cleanup?.length) {
-    mounted.cleanup.forEach((fn) => fn())
+  // ───────── 플레이어 생성/재사용 ─────────
+  let player = state.player
+  if (!player) {
+    player = new ns.CorePlayer()
+    state.player = player
+    state.container = container
   }
-  mounted = { player: null, container: null, token: null, cleanup: [] }
-
-  mounted.container = container
-  mounted.token = token
-
-  const previewPlayer = new ns.CorePlayer()
   container.innerHTML = ''
-  container.appendChild(previewPlayer.shadowRoot)
-  previewPlayer.muted = true
-  previewPlayer.volume = volume
-  previewPlayer.shadowRoot.style.visibility = 'hidden'
+  const root = getRoot(player as any)
+  if (root) {
+    try {
+      root.style.visibility = 'hidden'
+    } catch {}
+    container.appendChild(root)
+  }
 
+  // ───────── 기본 속성 ─────────
+  try {
+    ;(player as any).muted = true
+    if (typeof volume === 'number') (player as any).volume = volume
+  } catch (e) {
+    logError('player.props', e)
+  }
+
+  // ───────── 소스 생성 & 주입 ─────────
   const src = ns.LiveProvider.fromJSON(livePlayback, {
     devt: 'HTML5_PC',
     serviceId: 2099,
@@ -142,140 +170,98 @@ async function mountPlayer(params: PreviewMountParams): Promise<void> {
     p2pDisabled: true,
     maxLevel,
   })
+  try {
+    ;(player as any).srcObject = src
+  } catch (e) {
+    logError('player.srcObject', e)
+  }
 
+  // ───────── 이벤트 기반 재생 ─────────
   const onReady = async () => {
-    if (mounted.token !== token) return
+    if (state.token !== token) return
+    const root = getRoot(player as any)
+    if (root) root.style.visibility = ''
+
+    const video = root?.querySelector?.('video') as HTMLVideoElement | null
     try {
-      if (previewPlayer.shadowRoot?.style)
-        previewPlayer.shadowRoot.style.visibility = ''
-    } catch {
-      // ignore
-    }
-    try {
-      if (typeof previewPlayer.play === 'function') await previewPlayer.play()
-      else previewPlayer.shadowRoot?.querySelector?.('video')?.play?.()
-    } catch {
-      // ignore
+      // readyState 확인 후 play
+      if (video ? video.readyState >= 3 : true) {
+        if (typeof (player as any).play === 'function') {
+          await (player as any).play()
+        } else {
+          await video?.play()
+        }
+      }
+    } catch (e: any) {
+      if (e?.name !== 'AbortError') {
+        logError('player.play', e)
+      }
     }
   }
 
   try {
-    previewPlayer.addEventListener?.('loadedmetadata', onReady, { once: true })
+    ;(player as any).addEventListener?.('canplay', onReady, { once: true })
   } catch (e) {
-    reportError(`loadedmetadata`, e)
+    logError('addEventListener.canplay', e)
   }
-
-  previewPlayer.srcObject = src
-
-  requestAnimationFrame(() => onReady())
-
-  mounted.cleanup.push(
-    () => {
-      try {
-        previewPlayer.removeEventListener?.('loadedmetadata', onReady)
-      } catch (e) {
-        reportError(`loadedmetadata`, e)
-      }
-    },
-    () => {
-      try {
-        previewPlayer.removeEventListener?.('canplay', onReady)
-      } catch (e) {
-        reportError(`remove canplay`, e)
-      }
-    },
-    () => {
-      try {
-        if ('src' in previewPlayer) previewPlayer.src = ''
-      } catch (e) {
-        reportError(`init src`, e)
-      }
-    },
-    () => {
-      callIf(previewPlayer, 'pause')
-    },
-    () => {
-      callIf(previewPlayer, 'stop')
-    },
-    () => {
-      callIf(previewPlayer, 'destroy')
-    },
-    () => {
-      callIf(previewPlayer, 'dispose')
-    },
-    () => {
-      callIf(previewPlayer, 'unload')
-    },
-    () => {
-      try {
-        if (mounted.container) mounted.container.innerHTML = ''
-      } catch (e) {
-        reportError(`init container`, e)
-      }
-    },
-  )
-  mounted.player = previewPlayer
 }
 
 function unmountPlayer(): void {
-  const fns = mounted.cleanup || []
-  for (const fn of fns) {
-    try {
-      fn()
-    } catch (e) {
-      reportError(`unmount Error`, e)
-    }
+  state.token = null
+
+  const player = state.player
+  const container = state.container
+
+  // 내부 <video> 파이프라인만 안전 정지
+  try {
+    stopHtmlVideo(getRoot(player as any))
+  } catch (e) {
+    logError('unmount.stopVideo', e)
   }
-  mounted = { player: null, container: null, token: null, cleanup: [] }
+
+  // srcObject/src 해제(있을 때만)
+  try {
+    if (player && 'srcObject' in (player as any))
+      (player as any).srcObject = null
+    if (player && 'src' in (player as any)) (player as any).src = ''
+  } catch (e) {
+    logError('unmount.srcReset', e)
+  }
+
+  // DOM 정리
+  try {
+    container && (container.innerHTML = '')
+  } catch (e) {
+    logError('unmount.container', e)
+  }
 }
 
+/** ───────────────────────── window 이벤트 진입점 ─────────────────────────
+
+ */
+declare global {
+  interface WindowEventMap {
+    'preview:mount': CustomEvent<PreviewMountParams>
+    'preview:unmount': CustomEvent<void>
+  }
+}
+
+window.addEventListener('preview:mount', (ev) => {
+  // 이벤트 진입점은 비동기 오류를 삼켜버리기 쉬우니 안전 처리
+  void mountPlayer(ev.detail).catch((e) => logError('event.mount', e))
+})
+
+window.addEventListener('preview:unmount', () => {
+  try {
+    unmountPlayer()
+  } catch (e) {
+    logError('event.unmount', e)
+  }
+})
+
+/** ───────────────────────── 선택: RPC 래퍼(호환) ───────────────────────── */
 ;(window as any).__previewBridge = {
   fetchLiveDetail,
   mountPlayer,
   unmountPlayer,
 }
-
-// ===== RPC listener (content → page) =====
-type PreviewRPCRequest =
-  | {
-      __previewRPC: true
-      id: string
-      method: 'fetchLiveDetail'
-      args: [string]
-    }
-  | {
-      __previewRPC: true
-      id: string
-      method: 'mountPlayer'
-      args: [PreviewMountParams]
-    }
-  | { __previewRPC: true; id: string; method: 'unmountPlayer'; args: [] }
-
-type PreviewRPCResponse =
-  | { __previewRPC: true; id: string; ok: true; result: unknown }
-  | { __previewRPC: true; id: string; ok: false; error: string }
-
-const api = { fetchLiveDetail, mountPlayer, unmountPlayer } as const
-
-window.addEventListener('message', async (ev: MessageEvent) => {
-  const data = ev.data as PreviewRPCRequest | undefined
-  if (!data || (data as any).__previewRPC !== true) return
-  if (ev.source !== window) return
-
-  const { id, method, args } = data
-  try {
-    if (!(method in api)) throw new Error('unknown method')
-    // @ts-expect-error 좁은 union
-    const result = await api[method](...(args ?? []))
-    const res: PreviewRPCResponse = { __previewRPC: true, id, ok: true, result }
-    window.postMessage(res, '*')
-  } catch (e) {
-    const res: PreviewRPCResponse = {
-      __previewRPC: true,
-      id,
-      ok: false,
-      error: e instanceof Error ? e.message : String(e),
-    }
-    window.postMessage(res, '*')
-  }
-})

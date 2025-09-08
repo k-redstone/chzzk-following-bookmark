@@ -18,7 +18,7 @@ export default function PreviewView({
   progressPct,
 }: IPreviewViewProps): JSX.Element | null {
   const anchorRef = useRef<HTMLDivElement>(null)
-  useLightDomHost(containerId, anchorRef.current)
+  useLightDomHost(containerId, anchorRef.current, visible)
   if (!visible) return null
 
   return (
