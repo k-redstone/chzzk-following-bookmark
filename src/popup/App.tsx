@@ -163,7 +163,7 @@ export default function App() {
                 await toggleSettingTab('chatting_power')
                 invalidate()
               }}
-              label="1시간 라이브 인증 (BETA)"
+              label="1시간 라이브 자동 인증"
             />
           </div>
         </DividerSection>

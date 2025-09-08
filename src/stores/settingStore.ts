@@ -29,7 +29,7 @@ async function getState(): Promise<ISettingState> {
               partner: true,
               service: true,
               preview: true,
-              chatting_power: false,
+              chatting_power: true,
             },
           )
         req.onerror = () => reject(req.error)
