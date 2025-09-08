@@ -28,6 +28,7 @@ async function getState(): Promise<ISettingState> {
               category: true,
               partner: true,
               service: true,
+              preview: true,
               chatting_power: false,
             },
           )

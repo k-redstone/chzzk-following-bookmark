@@ -4,6 +4,7 @@ export interface ISettingState {
   partner: boolean
   service: boolean
   chatting_power: boolean
+  preview: boolean
 }
 
 export interface IImportMsg {

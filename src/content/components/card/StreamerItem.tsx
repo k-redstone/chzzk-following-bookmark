@@ -117,12 +117,14 @@ export default function StreamerItem({
             />
           </div>
           {isOpenItemTooltip && (
-            <ItemTooltip
-              liveStatus={liveStatusData}
-              streamer={streamer}
-              inFolder={inFolder}
-              isNavExpanded={isNavExpanded}
-            />
+            <>
+              <ItemTooltip
+                liveStatus={liveStatusData}
+                streamer={streamer}
+                inFolder={inFolder}
+                isNavExpanded={isNavExpanded}
+              />
+            </>
           )}
         </div>
       </>

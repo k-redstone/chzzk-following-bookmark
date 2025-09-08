@@ -4,11 +4,14 @@ import type {
   ILiveContent,
   IChannelContent,
 } from '@/types/follow'
+import type { LiveInfo, LivePlayback } from '@/types/preview-bridge'
 import type { ISettingState } from '@/types/setting'
 
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
 import { getBookmarkState } from '@/stores/bookmarkStore'
 import { getSettingState } from '@/stores/settingStore'
+
+type LiveDetailResponse = { code: number; content: LiveInfo }
 
 async function request<T>(path: string): Promise<IChzzkResponse<T>> {
   const url = new URL(path)
@@ -51,6 +54,34 @@ async function fetchChannelStatus(hashId: string) {
   return channelStatus.content
 }
 
+// 라이브 디테일 fetch
+async function fetchLiveDetail(uid: string): Promise<LiveInfo> {
+  const r = await fetch(
+    `https://api.chzzk.naver.com/service/v3.2/channels/${uid}/live-detail`,
+    { credentials: 'include', cache: 'no-cache' },
+  )
+  if (!r.ok) throw new Error(`live-detail fetch failed: ${r.status}`)
+
+  const j: unknown = await r.json()
+  if (!j || typeof j !== 'object' || !('code' in j)) {
+    throw new Error('invalid live-detail response')
+  }
+
+  const res = j as LiveDetailResponse
+  if (res.code !== 200) throw new Error(`live-detail code != 200: ${res.code}`)
+
+  const info = res.content
+  const raw = (res.content as Record<string, unknown>)['livePlaybackJson']
+  if (!info.livePlayback && typeof raw === 'string') {
+    try {
+      info.livePlayback = JSON.parse(raw) as LivePlayback
+    } catch {
+      /* ignore */
+    }
+  }
+  return info
+}
+
 // 세팅값 전파
 async function setSettingState(rawState: string): Promise<boolean> {
   const newState: ISettingState = JSON.parse(rawState)
@@ -75,6 +106,7 @@ const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
     fetchFollowList,
     fetchStreamerLiveStatus,
     fetchChannelStatus,
+    fetchLiveDetail,
     getSettingState,
     setSettingState,
     getBookmarkState,

@@ -143,6 +143,14 @@ export default function App() {
               }}
               label="서비스 바로가기"
             />
+            <ToggleSwitch
+              checked={data.preview}
+              onChange={async () => {
+                await toggleSettingTab('preview')
+                invalidate()
+              }}
+              label="미리보기"
+            />
           </div>
         </DividerSection>
 

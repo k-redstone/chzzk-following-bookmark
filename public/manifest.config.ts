@@ -11,6 +11,7 @@ export default {
       {
         matches: ['https://chzzk.naver.com/*'],
         js: ['src/content/main.tsx'],
+        run_at: 'document_start',
       },
     ],
 
@@ -18,6 +19,14 @@ export default {
       service_worker: 'src/background/index.ts',
       type: 'module',
     },
+
+    web_accessible_resources: [
+      {
+        resources: ['page-bridge.esm.js'],
+        matches: ['https://chzzk.naver.com/*'],
+      },
+    ],
+
     icons: {
       '48': 'public/icon-48.png',
       '96': 'public/icon-96.png',
