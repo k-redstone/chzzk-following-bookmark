@@ -111,7 +111,7 @@ export default function App() {
       <div className="min-w-64 bg-[#1c1d1f] p-5 text-white">
         <DividerSection>
           <div className="flex flex-col gap-y-2">
-            <h2 className="font-bold">사이드바 설정</h2>
+            <h2 className="text-bg-chzzk-04 font-bold">사이드바 설정</h2>
             <ToggleSwitch
               checked={data.following}
               onChange={async () => {
@@ -149,7 +149,7 @@ export default function App() {
 
         <DividerSection>
           <div className="flex flex-col gap-y-2">
-            <h2 className="font-bold">미리보기 설정</h2>
+            <h2 className="text-bg-chzzk-04 font-bold">미리보기 설정</h2>
             <ToggleSwitch
               checked={data.preview}
               onChange={async () => {
@@ -183,7 +183,7 @@ export default function App() {
 
         <DividerSection>
           <div className="flex flex-col gap-y-2">
-            <h2 className="font-bold">통나무 파워</h2>
+            <h2 className="text-bg-chzzk-04 font-bold">통나무 파워</h2>
             <ToggleSwitch
               checked={data.chatting_power}
               onChange={async () => {
