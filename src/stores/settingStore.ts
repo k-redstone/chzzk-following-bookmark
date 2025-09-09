@@ -1,4 +1,7 @@
-import type { ISettingState } from '@/types/setting'
+import type {
+  ISettingSliderOnChangeOptions,
+  ISettingState,
+} from '@/types/setting'
 
 import { DB_NAME, SETTING_KEY, SETTING_STORE_NAME } from '@/constants'
 import { sendRuntimeMessage } from '@/utils/helper'
@@ -30,6 +33,8 @@ async function getState(): Promise<ISettingState> {
               service: true,
               preview: true,
               chatting_power: true,
+              preview_view_width: 380,
+              preview_volume: 10,
             },
           )
         req.onerror = () => reject(req.error)
@@ -73,4 +78,41 @@ export async function toggleSettingTab<K extends keyof ISettingState>(
   await saveSettingState(nextState)
   await sendRuntimeMessage('setSettingState', JSON.stringify(nextState))
   return nextState
+}
+
+export async function setSettingKey<K extends keyof ISettingState>(
+  key: K,
+  value: ISettingState[K],
+): Promise<ISettingState> {
+  const prevState = await getSettingState()
+  const nextState: ISettingState = { ...prevState, [key]: value }
+  await saveSettingState(nextState)
+  await sendRuntimeMessage('setSettingState', JSON.stringify(nextState))
+  return nextState
+}
+export function settingSliderOnChange<K extends keyof ISettingState>(
+  key: K,
+  options?: ISettingSliderOnChangeOptions,
+): (next: number) => void {
+  const debounceMs = options?.debounceMs ?? 150
+
+  let t: number | undefined
+  let lastValue: number | undefined
+  let version = 0
+
+  const flush = async (ticket: number) => {
+    if (lastValue === undefined || ticket !== version) return
+    const nextState = await setSettingKey(key, lastValue as ISettingState[K])
+    if (options?.onSaved) await options.onSaved(nextState)
+  }
+
+  return (next: number) => {
+    if (options?.onLocal) options.onLocal(next)
+
+    lastValue = next
+    version += 1
+    const ticket = version
+    if (t !== undefined) window.clearTimeout(t)
+    t = window.setTimeout(() => void flush(ticket), debounceMs)
+  }
 }

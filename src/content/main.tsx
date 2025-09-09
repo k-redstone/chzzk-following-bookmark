@@ -10,7 +10,7 @@ import type { ISettingState } from '@/types/setting'
 import { TAB_INDEX } from '@/constants'
 import { SHADOW_HOST_ID } from '@/constants'
 import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
-import { setPreviewEnabled } from '@/content/state/previewSettings'
+import { setPreviewState } from '@/content/state/previewSettings'
 import App from '@/content/views/App'
 import { getBookmarkState, saveBookmarkState } from '@/stores/bookmarkStore'
 import { handleLiveChatPower } from '@/utils/chatPowerAutoClick'
@@ -45,7 +45,11 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
     if (target) {
       applyTabVisibility(setting, target, TAB_INDEX)
       handleLiveChatPower(Boolean(setting.chatting_power))
-      setPreviewEnabled(Boolean(setting.preview))
+      setPreviewState(
+        Boolean(setting.preview),
+        setting.preview_view_width,
+        setting.preview_volume,
+      )
     }
   }
 
@@ -78,7 +82,11 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
     if (msg.type === 'UPDATE_SETTING' && msg.state && target) {
       applyTabVisibility(msg.state, target, TAB_INDEX)
       handleLiveChatPower(Boolean(msg.state.chatting_power))
-      setPreviewEnabled(Boolean(msg.state.preview))
+      setPreviewState(
+        Boolean(msg.state.preview),
+        msg.state.preview_view_width,
+        msg.state.preview_volume,
+      )
     }
 
     if (msg.type === 'EXPORT_BOOKMARK_DATA') {

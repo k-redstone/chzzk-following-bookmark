@@ -2,6 +2,7 @@ import type { BookmarkState } from '@/types/bookmark'
 import type { ISettingState } from '@/types/setting'
 
 import DividerSection from '@/popup/components/DividerSection'
+import Slider from '@/popup/components/Slider'
 import ToggleSwitch from '@/popup/components/ToggleSwitch'
 import useSettingState from '@/popup/hooks/queries/useSettingState'
 import { toggleSettingTab, saveSettingState } from '@/stores/settingStore'
@@ -9,7 +10,7 @@ import { downloadJson, isValidImportData, readJsonFile } from '@/utils/data'
 import { sendRuntimeMessage } from '@/utils/helper'
 
 export default function App() {
-  const { data, isSuccess, invalidate } = useSettingState()
+  const { data, isSuccess, invalidate, makeSliderOnChange } = useSettingState()
 
   if (!isSuccess) return null
 
@@ -143,6 +144,12 @@ export default function App() {
               }}
               label="서비스 바로가기"
             />
+          </div>
+        </DividerSection>
+
+        <DividerSection>
+          <div className="flex flex-col gap-y-2">
+            <h2 className="font-bold">미리보기 설정</h2>
             <ToggleSwitch
               checked={data.preview}
               onChange={async () => {
@@ -150,6 +157,26 @@ export default function App() {
                 invalidate()
               }}
               label="미리보기"
+            />
+            <Slider
+              min={300}
+              max={760}
+              step={20}
+              value={data.preview_view_width}
+              defaultValue={380}
+              onChange={makeSliderOnChange('preview_view_width')}
+              ariaLabel="크기"
+              unit="px"
+            />
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={data.preview_volume}
+              defaultValue={10}
+              onChange={makeSliderOnChange('preview_volume')}
+              ariaLabel="음량"
+              unit="%"
             />
           </div>
         </DividerSection>

@@ -156,8 +156,8 @@ async function mountPlayer(params: PreviewMountParams): Promise<void> {
 
   // ───────── 기본 속성 ─────────
   try {
-    ;(player as any).muted = true
-    if (typeof volume === 'number') (player as any).volume = volume
+    // ;(player as any).muted = true
+    if (typeof volume === 'number') (player as any).volume = volume / 100
   } catch (e) {
     logError('player.props', e)
   }

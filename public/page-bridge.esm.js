@@ -130,9 +130,7 @@ async function mountPlayer(params) {
     container.appendChild(root);
   }
   try {
-    ;
-    player.muted = true;
-    if (typeof volume === "number") player.volume = volume;
+    if (typeof volume === "number") player.volume = volume / 100;
   } catch (e) {
     logError("player.props", e);
   }

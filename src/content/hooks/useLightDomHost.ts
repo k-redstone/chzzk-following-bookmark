@@ -4,33 +4,53 @@ export default function useLightDomHost(
   containerId: string,
   anchorEl: HTMLElement | null,
   active: boolean,
+  width?: number,
 ) {
   useEffect(() => {
     if (!containerId || !anchorEl || !active) return
 
-    let el = document.getElementById(containerId) as HTMLDivElement | null
-    let appended = false
-    if (!el) {
-      el = document.createElement('div')
-      el.id = containerId
+    const getOrCreateHost = (id: string): HTMLDivElement => {
+      const found = document.getElementById(id)
+      if (found instanceof HTMLDivElement) return found
+
+      const el = document.createElement('div')
+      el.id = id
       el.style.position = 'fixed'
       el.style.zIndex = '2147483647'
       el.style.pointerEvents = 'none'
-      el.style.width = '380px'
-      el.style.height = '214px'
-      el.style.contain = 'layout paint size style'
       document.body.appendChild(el)
-      appended = true
+      return el
     }
 
+    const host = getOrCreateHost(containerId)
+    const style = host.style
+
+    // 16:9 유지
+    const w = typeof width === 'number' ? width : 380
+    style.width = `${w}px`
+
+    const supportsAspect =
+      typeof CSS !== 'undefined' &&
+      typeof CSS.supports === 'function' &&
+      CSS.supports('aspect-ratio', '16/9')
+
+    if (supportsAspect) {
+      style.setProperty('aspect-ratio', '16 / 9')
+      style.removeProperty('height')
+    } else {
+      style.removeProperty('aspect-ratio')
+      style.height = `${Math.round((w * 9) / 16)}px`
+    }
+
+    // rAF 루프로 위치 동기화 (33ms ≈ 30fps)
     let raf = 0
     let last = 0
     const sync = (t: number) => {
       if (t - last >= 33) {
         last = t
         const r = anchorEl.getBoundingClientRect()
-        el.style.left = `${Math.round(r.left)}px`
-        el.style.top = `${Math.round(r.top)}px`
+        host.style.left = `${Math.round(r.left)}px`
+        host.style.top = `${Math.round(r.top)}px`
       }
       raf = requestAnimationFrame(sync)
     }
@@ -38,7 +58,7 @@ export default function useLightDomHost(
 
     return () => {
       cancelAnimationFrame(raf)
-      if (appended) el!.remove()
+      host.remove()
     }
-  }, [containerId, anchorEl, active])
+  }, [containerId, anchorEl, active, width])
 }

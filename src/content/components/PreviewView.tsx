@@ -1,6 +1,7 @@
 import { useRef, type JSX } from 'react'
 
 import useLightDomHost from '@/content/hooks/useLightDomHost'
+import { getPreviewSettings } from '@/content/state/previewSettings'
 
 export interface IPreviewViewProps {
   visible: boolean
@@ -18,7 +19,12 @@ export default function PreviewView({
   progressPct,
 }: IPreviewViewProps): JSX.Element | null {
   const anchorRef = useRef<HTMLDivElement>(null)
-  useLightDomHost(containerId, anchorRef.current, visible)
+  useLightDomHost(
+    containerId,
+    anchorRef.current,
+    visible,
+    getPreviewSettings().previewWidth,
+  )
   if (!visible) return null
 
   return (

@@ -33,12 +33,13 @@ export type InlinePreviewOptions = {
   delayMs?: Milliseconds // 기본 600
   volume?: number // 기본 0 (mute)
   maxLevel?: number // 기본 480
+  width?: number
 }
 
 export function usePreview(opts?: InlinePreviewOptions) {
   const cfg = {
     delayMs: 600 as Milliseconds,
-    volume: 0,
+    volume: opts?.volume,
     maxLevel: 480,
     ...opts,
   }
@@ -146,6 +147,7 @@ export function usePreview(opts?: InlinePreviewOptions) {
                 containerId,
                 livePlayback: info.livePlayback,
                 volume: cfg.volume,
+                width: cfg.width,
                 maxLevel: cfg.maxLevel,
                 token,
               },

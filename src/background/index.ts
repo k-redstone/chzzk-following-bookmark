@@ -86,16 +86,18 @@ async function fetchLiveDetail(uid: string): Promise<LiveInfo> {
 async function setSettingState(rawState: string): Promise<boolean> {
   const newState: ISettingState = JSON.parse(rawState)
   // 모든 탭에 변경사항 브로드캐스트
-  chrome.tabs.query({}, (tabs) => {
-    tabs.forEach((tab) => {
-      if (tab.id) {
-        chrome.tabs.sendMessage(tab.id, {
-          type: 'UPDATE_SETTING',
-          state: newState,
-        })
-      }
-    })
+
+  const tabs = await chrome.tabs.query({
+    url: ['https://chzzk.naver.com/*'],
   })
+  for (const tab of tabs) {
+    if (tab.id !== undefined) {
+      chrome.tabs.sendMessage(tab.id, {
+        type: 'UPDATE_SETTING',
+        state: newState,
+      })
+    }
+  }
   return true
 }
 

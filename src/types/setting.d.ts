@@ -5,9 +5,17 @@ export interface ISettingState {
   service: boolean
   chatting_power: boolean
   preview: boolean
+  preview_view_width: number
+  preview_volume: number
 }
 
 export interface IImportMsg {
   message: string
   variant: 'error' | 'success'
+}
+
+export interface ISettingSliderOnChangeOptions {
+  debounceMs?: number
+  onSaved?: (state: ISettingState) => void | Promise<void>
+  onLocal?: (next: number) => void
 }
