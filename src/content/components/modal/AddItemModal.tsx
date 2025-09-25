@@ -170,7 +170,7 @@ export default function AddItemModal({
                 value={searchUUID}
                 onChange={(e) => setSearchUUID(e.target.value)}
               />
-              <div className="absolute right-5 flex h-3 w-11 gap-x-2">
+              <div className="absolute right-5 flex h-3 w-11 items-center gap-x-2">
                 <Search
                   onClick={() => handleSearchStreamerByUUID()}
                   className="text-bg-chzzk-light-01 cursor-pointer"
