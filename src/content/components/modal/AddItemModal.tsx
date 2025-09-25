@@ -39,7 +39,7 @@ export default function AddItemModal({
   >([])
 
   const filteredList = filterNotInFolder(
-    followData?.followingList,
+    followData,
     folder ? folder?.items : root,
   )
 

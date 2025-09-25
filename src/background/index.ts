@@ -48,8 +48,55 @@ async function request<T>(path: string): Promise<IChzzkResponse<T>> {
 
 // 팔로우 목록 fetch
 async function fetchFollowList() {
-  const followList = await request<IFollowingListContent>(FETCH_FOLLOWING_URL)
-  return followList.content
+  const PAGE_SIZE = 20
+  const CONCURRENCY = 4
+
+  const fetchPage = async (page: number): Promise<IFollowingListContent> => {
+    const url = new URL(FETCH_FOLLOWING_URL)
+    url.searchParams.set('page', String(page))
+    url.searchParams.set('size', String(PAGE_SIZE))
+    url.searchParams.set('sortType', 'FOLLOW')
+    const res = await request<IFollowingListContent>(url.toString())
+    return (
+      res?.content ?? {
+        totalCount: 0,
+        totalPage: 0,
+        followingList: [],
+      }
+    )
+  }
+
+  const first = await fetchPage(0)
+  const items = [...first.followingList]
+
+  const totalCount = first.totalCount ?? items.length
+  const totalPages =
+    first.totalPage && first.totalPage > 0
+      ? first.totalPage
+      : Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
+
+  if (totalPages <= 1) {
+    return Array.from(new Map(items.map((i) => [i.channelId, i])).values())
+  }
+
+  const remainingPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 1)
+
+  const chunk = <T>(arr: T[], n: number): T[][] => {
+    const out: T[][] = []
+    for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n))
+    return out
+  }
+
+  for (const pages of chunk(remainingPages, CONCURRENCY)) {
+    const results = await Promise.all(pages.map((p) => fetchPage(p)))
+    for (const r of results) items.push(...r.followingList)
+  }
+
+  const deduped = Array.from(
+    new Map(items.map((i) => [i.channelId, i])).values(),
+  )
+
+  return deduped.slice(0, totalCount || deduped.length)
 }
 
 // 스트리머 live-status fetch
