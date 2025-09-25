@@ -1,4 +1,4 @@
-import { Trash } from 'lucide-react'
+import { Trash, Search, X } from 'lucide-react'
 import { useState } from 'react'
 
 import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
@@ -9,12 +9,12 @@ import CommonModal from '@/content/components/modal/CommonModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useFollowList from '@/content/hooks/queries/useFollowList'
 import { addItemToFolder, addRootBookmarkItem } from '@/stores/bookmarkStore'
-import { sendRuntimeMessage } from '@/utils/helper'
 import {
   searchStreamerToFollowList,
   isStreamerAlreadySelected,
   transBookmarkData,
   filterNotInFolder,
+  sendRuntimeMessage,
 } from '@/utils/helper'
 
 interface IAddItemModalProps {
@@ -31,6 +31,8 @@ export default function AddItemModal({
   const { invalidate } = useBookmarkState()
   const [searchStreamerName, setSearchStreamerName] = useState<string>('')
   const [searchUUID, setSearchUUID] = useState<string>('')
+  const [searchUUIDErr, setSearchUUIDErr] = useState<boolean>(false)
+  const [searchUUIDMsg, setSearchUUIDMsg] = useState<string>('')
 
   const [selectedStreamer, setSelectedStreamer] = useState<
     Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'>[]
@@ -55,11 +57,13 @@ export default function AddItemModal({
     )
 
     if (result === null) {
+      setSearchUUIDErr(true)
+      setSearchUUIDMsg('UUID로 스트리머를 찾지 못했습니다.')
       setSearchUUID('')
       return
     }
 
-    setSearchUUID('')
+    handleDeleteUUIDSeearch()
     handleAddSelectStreamer(result)
   }
 
@@ -78,6 +82,14 @@ export default function AddItemModal({
   }
 
   const handleAddItemToBookmark = async () => {
+    if (searchUUID.trim() !== '') {
+      setSearchUUIDErr(true)
+      setSearchUUIDMsg(
+        'UUID로 추가하지 않은 항목이 있습니다. Enter 또는 검색 아이콘을 눌러 추가해주세요.',
+      )
+      return
+    }
+
     if (folder) {
       await addItemToFolder(folder.id, selectedStreamer)
       invalidate()
@@ -89,6 +101,12 @@ export default function AddItemModal({
     invalidate()
     handleModalClose()
     return
+  }
+
+  const handleDeleteUUIDSeearch = () => {
+    setSearchUUID('')
+    setSearchUUIDMsg('')
+    setSearchUUIDErr(false)
   }
 
   return (
@@ -140,7 +158,7 @@ export default function AddItemModal({
           <div className="flex grow flex-col gap-y-3">
             <p className="text-center font-extrabold">추가된 목록</p>
             <form
-              className="flex justify-center"
+              className="relative flex items-center justify-center"
               onSubmit={(e) => {
                 e.preventDefault()
                 handleSearchStreamerByUUID()
@@ -152,6 +170,16 @@ export default function AddItemModal({
                 value={searchUUID}
                 onChange={(e) => setSearchUUID(e.target.value)}
               />
+              <div className="absolute right-5 flex h-3 w-11 gap-x-2">
+                <Search
+                  onClick={() => handleSearchStreamerByUUID()}
+                  className="text-bg-chzzk-light-01 cursor-pointer"
+                />
+                <X
+                  onClick={() => handleDeleteUUIDSeearch()}
+                  className="cursor-pointer text-red-400"
+                />
+              </div>
             </form>
             <div className="flex h-[250px] flex-col gap-y-4 overflow-y-scroll px-2">
               {selectedStreamer.map((streamer) => (
@@ -184,21 +212,29 @@ export default function AddItemModal({
         </div>
 
         {/* footer 버튼 */}
-        <div className="flex justify-center gap-x-2 p-5">
-          <button
-            type="button"
-            className="dark:dark:bg-bg-04 dark:hover:bg-bg-05 bg-content-hover-02 hover:bg-content-hover-03 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold"
-            onClick={handleModalClose}
-          >
-            취소
-          </button>
-          <button
-            type="button"
-            className="dark:bg-bg-chzzk-01 dark:hover:bg-bg-chzzk-03 bg-bg-chzzk-light-01 hover:bg-bg-chzzk-light-02 w-full cursor-pointer rounded-2xl border px-5 py-3 font-semibold text-white dark:text-black"
-            onClick={() => handleAddItemToBookmark()}
-          >
-            추가
-          </button>
+        <div className="flex-col gap-y-4">
+          <div className="flex items-center justify-center">
+            <span className="text-red-300">
+              {searchUUIDErr && `${searchUUIDMsg}`}
+            </span>
+          </div>
+
+          <div className="flex justify-center gap-x-2 p-5">
+            <button
+              type="button"
+              className="dark:dark:bg-bg-04 dark:hover:bg-bg-05 bg-content-hover-02 hover:bg-content-hover-03 w-full cursor-pointer rounded-2xl px-5 py-3 font-semibold"
+              onClick={handleModalClose}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              className="dark:bg-bg-chzzk-01 dark:hover:bg-bg-chzzk-03 bg-bg-chzzk-light-01 hover:bg-bg-chzzk-light-02 w-full cursor-pointer rounded-2xl border px-5 py-3 font-semibold text-white dark:text-black"
+              onClick={() => handleAddItemToBookmark()}
+            >
+              완료 ({selectedStreamer.length}명)
+            </button>
+          </div>
         </div>
       </div>
     </CommonModal>
