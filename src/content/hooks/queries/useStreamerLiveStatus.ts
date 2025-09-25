@@ -13,6 +13,8 @@ export default function useStreamerLiveStatus(hashId?: string) {
     queryFn: async () =>
       await sendRuntimeMessage<ILiveContent>('fetchStreamerLiveStatus', hashId),
     enabled: !!hashId,
+    refetchInterval: 60 * 1000,
+    refetchIntervalInBackground: false,
   })
 
   const invalidate = () => {

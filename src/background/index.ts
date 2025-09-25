@@ -54,6 +54,7 @@ async function fetchFollowList() {
 
 // 스트리머 live-status fetch
 async function fetchStreamerLiveStatus(hashId: string) {
+  console.log('refetch live-status')
   const liveStatus = await request<ILiveContent>(
     `https://api.chzzk.naver.com/polling/v3.1/channels/${hashId}/live-status`,
   )
