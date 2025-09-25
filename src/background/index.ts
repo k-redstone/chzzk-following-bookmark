@@ -6,12 +6,27 @@ import type {
 } from '@/types/follow'
 import type { LiveInfo, LivePlayback } from '@/types/preview-bridge'
 import type { ISettingState } from '@/types/setting'
+import type { OpenTabErr, OpenTabResp } from '@/utils/openTab'
 
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
 import { getBookmarkState } from '@/stores/bookmarkStore'
 import { getSettingState } from '@/stores/settingStore'
 
+// ---------------------------------------------
+// Types
+// ---------------------------------------------
+
 type LiveDetailResponse = { code: number; content: LiveInfo }
+type TOpenTabMsg = {
+  type: 'OPEN_TAB'
+  url: string
+  active?: boolean
+  nextToCurrent?: boolean
+}
+
+// ---------------------------------------------
+// Fetch helpers
+// ---------------------------------------------
 
 async function request<T>(path: string): Promise<IChzzkResponse<T>> {
   const url = new URL(path)
@@ -82,7 +97,10 @@ async function fetchLiveDetail(uid: string): Promise<LiveInfo> {
   return info
 }
 
-// 세팅값 전파
+// ---------------------------------------------
+// Settings broadcast
+// ---------------------------------------------
+
 async function setSettingState(rawState: string): Promise<boolean> {
   const newState: ISettingState = JSON.parse(rawState)
   // 모든 탭에 변경사항 브로드캐스트
@@ -101,7 +119,52 @@ async function setSettingState(rawState: string): Promise<boolean> {
   return true
 }
 
-// 헬퍼 함수들
+// ---------------------------------------------
+// Tab creation (Chrome 전용)
+// ---------------------------------------------
+
+function resolveToAbsolute(
+  raw: string,
+  sender: chrome.runtime.MessageSender,
+): string {
+  const base =
+    typeof sender.tab?.url === 'string'
+      ? sender.tab.url
+      : 'https://chzzk.naver.com/'
+  try {
+    return new URL(raw, base).toString()
+  } catch {
+    return raw
+  }
+}
+
+function createTabChrome(
+  msg: TOpenTabMsg,
+  cb: (resp: OpenTabResp) => void,
+): void {
+  const opts: chrome.tabs.CreateProperties = {
+    url: msg.url,
+    active: Boolean(msg.active),
+  }
+  const finish = (tab?: chrome.tabs.Tab) => {
+    const tabId = typeof tab?.id === 'number' ? tab.id : null
+    cb({ ok: true, tabId })
+  }
+
+  if (msg.nextToCurrent) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const idx = tabs[0]?.index
+      if (typeof idx === 'number') opts.index = idx + 1
+      chrome.tabs.create(opts, finish)
+    })
+  } else {
+    chrome.tabs.create(opts, finish)
+  }
+}
+
+// ---------------------------------------------
+// Message router
+// ---------------------------------------------
 
 const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
   {
@@ -114,17 +177,62 @@ const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
     getBookmarkState,
   }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isOpenTabMsg(value: unknown): value is TOpenTabMsg {
+  if (!isRecord(value)) return false
+  return (
+    value.type === 'OPEN_TAB' &&
+    typeof value.url === 'string' &&
+    (value.active === undefined || typeof value.active === 'boolean') &&
+    (value.nextToCurrent === undefined ||
+      typeof value.nextToCurrent === 'boolean')
+  )
+}
+
+function isIMessageLike(value: unknown): value is IMessage {
+  if (!isRecord(value)) return false
+  const typeOk = typeof (value as { type?: unknown }).type === 'string'
+  const argsOk = Array.isArray((value as { args?: unknown }).args)
+  return typeOk && argsOk
+}
+
 chrome.runtime.onMessage.addListener(
-  (message: unknown, _sender, sendResponse) => {
-    const msg = message as IMessage
-    const handler = messageHandlers[msg.type]
+  (message: unknown, sender, sendResponse) => {
+    if (isOpenTabMsg(message)) {
+      try {
+        const absoluteUrl = resolveToAbsolute(message.url, sender)
+        const fixed: TOpenTabMsg = { ...message, url: absoluteUrl }
+        createTabChrome(fixed, (resp) => sendResponse(resp))
+        return true
+      } catch (e) {
+        const err: OpenTabErr = {
+          ok: false,
+          error: e instanceof Error ? e.message : String(e),
+        }
+        sendResponse(err)
+        return false
+      }
+    }
 
-    if (!handler) throw new RangeError()
+    if (isIMessageLike(message)) {
+      const msg = message as IMessage
+      const handler = messageHandlers[msg.type]
+      if (!handler) throw new RangeError()
 
-    handler(...msg.args)
-      .then((result) => sendResponse(result))
-      .catch((error) => sendResponse({ error: error.message }))
+      handler(...msg.args)
+        .then((result) => sendResponse(result))
+        .catch((error: unknown) => {
+          const errObj = {
+            error: error instanceof Error ? error.message : String(error),
+          }
+          sendResponse(errObj)
+        })
 
-    return true
+      return true
+    }
+    return false
   },
 )

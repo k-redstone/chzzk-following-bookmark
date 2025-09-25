@@ -1,14 +1,22 @@
 import { useSortable, type AnimateLayoutChanges } from '@dnd-kit/sortable'
+import { useEffect, useState } from 'react'
 
 import type { BookmarkItem } from '@/types/bookmark'
 
 import { DEFAULT_IMAGE_URL } from '@/constants'
+import {
+  getContextMenuState,
+  subscribeContextMenu,
+} from '@/content/bus/contextMenuBus'
+import ContextMenuTooltip from '@/content/components/ContextMenuTooltip'
 import ItemTooltip from '@/content/components/ItemTooltip'
 import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirmModal'
 import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useDndStyle from '@/content/hooks/useDndStyle'
 import useModal from '@/content/hooks/useModal'
+import useRightClickMenu from '@/content/hooks/useRightClickMenu'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
+import { openTab } from '@/utils/openTab'
 
 interface IStreamerItemProps {
   streamer: BookmarkItem
@@ -33,10 +41,22 @@ export default function StreamerItem({
     openModal: openItemTooltip,
   } = useModal()
 
+  const {
+    open: contextMenuOpen,
+    payload,
+    show: showContextMenu,
+    hide: hideContextMenu,
+    attachMenuEl,
+    armInternalDownGuard,
+  } = useRightClickMenu()
+
   const { show: showToolTipSection, hide: hideTooltipSection } =
     useShowTooltip()
 
+  const [isAnyMenuOpen, setIsAnyMenuOpen] = useState(getContextMenuState().open)
+
   const isLive = liveStatusData?.status === 'OPEN'
+  const url = isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`
 
   const animateLayoutChanges: AnimateLayoutChanges = ({
     isSorting,
@@ -46,14 +66,34 @@ export default function StreamerItem({
   const handleMoveToStreamer = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
-    const url = isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`
-
     if (e.ctrlKey || e.metaKey) {
       window.open(url, '_blank')
     } else {
       window.location.href = url
     }
   }
+
+  const handleContextMenuOpen = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (isLive) {
+      closeItemTooltip()
+      hideTooltipSection()
+    }
+    showContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      streamer,
+      inFolder,
+      isNavExpanded,
+    })
+  }
+
+  const openNewTab = () =>
+    void openTab(url, { active: false, nextToCurrent: true })
+
+  const onDelete = () => openDeleteItemConfirmModal()
 
   const {
     attributes,
@@ -67,6 +107,12 @@ export default function StreamerItem({
     animateLayoutChanges: animateLayoutChanges,
   })
   const { style } = useDndStyle(transform, transition)
+
+  useEffect(() => {
+    return subscribeContextMenu((s) => {
+      setIsAnyMenuOpen(s.open)
+    })
+  }, [])
 
   if (!isNavExpanded) {
     return (
@@ -85,7 +131,7 @@ export default function StreamerItem({
           {...listeners}
           onClick={(e) => handleMoveToStreamer(e)}
           onMouseEnter={() => {
-            if (isLive) {
+            if (isLive && !isAnyMenuOpen) {
               openItemTooltip()
               showToolTipSection()
             }
@@ -96,10 +142,7 @@ export default function StreamerItem({
               hideTooltipSection()
             }
           }}
-          onContextMenu={(e) => {
-            e.preventDefault()
-            openDeleteItemConfirmModal()
-          }}
+          onContextMenu={handleContextMenuOpen}
         >
           <div
             className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 hover:ring-4 ${isLive ? `dark:ring-border-chzzk-02 ring-bg-chzzk-light-01` : `dark:ring-bg-02 hover:ring-content-hover-02 dark:hover:ring-bg-03 ring-white grayscale filter`}`}
@@ -116,7 +159,18 @@ export default function StreamerItem({
               className={`aspect-auto h-full w-full object-cover`}
             />
           </div>
-          {isOpenItemTooltip && (
+          <ContextMenuTooltip
+            streamer={streamer}
+            x={payload?.x ?? 0}
+            y={payload?.y ?? 0}
+            open={contextMenuOpen && payload?.streamer.id === streamer.id}
+            onClose={hideContextMenu}
+            onOpenNewTab={openNewTab}
+            onDelete={onDelete}
+            attachMenuEl={attachMenuEl}
+            armInternalDownGuard={armInternalDownGuard}
+          />
+          {isOpenItemTooltip && !isAnyMenuOpen && (
             <>
               <ItemTooltip
                 liveStatus={liveStatusData}
@@ -147,7 +201,7 @@ export default function StreamerItem({
         {...listeners}
         onClick={(e) => handleMoveToStreamer(e)}
         onMouseEnter={() => {
-          if (isLive) {
+          if (isLive && !isAnyMenuOpen) {
             openItemTooltip()
             showToolTipSection()
           }
@@ -158,10 +212,7 @@ export default function StreamerItem({
             hideTooltipSection()
           }
         }}
-        onContextMenu={(e) => {
-          e.preventDefault()
-          openDeleteItemConfirmModal()
-        }}
+        onContextMenu={handleContextMenuOpen}
       >
         <div
           className={`h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `dark:border-bg-chzzk-04 border-bg-chzzk-light-01` : `dark:border-bg-02 border-white grayscale filter`}`}
@@ -201,7 +252,19 @@ export default function StreamerItem({
           </div>
         )}
 
-        {isOpenItemTooltip && (
+        <ContextMenuTooltip
+          streamer={streamer}
+          x={payload?.x ?? 0}
+          y={payload?.y ?? 0}
+          open={contextMenuOpen && payload?.streamer.id === streamer.id}
+          onClose={hideContextMenu}
+          onOpenNewTab={openNewTab}
+          onDelete={onDelete}
+          attachMenuEl={attachMenuEl}
+          armInternalDownGuard={armInternalDownGuard}
+        />
+
+        {isOpenItemTooltip && !isAnyMenuOpen && (
           <ItemTooltip
             liveStatus={liveStatusData}
             streamer={streamer}

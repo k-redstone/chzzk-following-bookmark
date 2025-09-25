@@ -33,6 +33,8 @@ export default {
       '128': 'public/icon-128.png',
     },
 
+    permissions: ['tabs'],
+
     host_permissions: [
       'https://chzzk.naver.com/*',
       'https://api.chzzk.naver.com/*',
