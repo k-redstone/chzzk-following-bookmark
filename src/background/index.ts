@@ -48,7 +48,7 @@ async function request<T>(path: string): Promise<IChzzkResponse<T>> {
 
 // 팔로우 목록 fetch
 async function fetchFollowList() {
-  const PAGE_SIZE = 20
+  const PAGE_SIZE = 505
   const CONCURRENCY = 4
 
   const fetchPage = async (page: number): Promise<IFollowingListContent> => {
