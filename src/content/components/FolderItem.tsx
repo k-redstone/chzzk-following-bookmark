@@ -1,27 +1,21 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import {
-  EllipsisVertical,
-  Folder,
-  Plus,
-  Trash,
-  Pencil,
-  FolderOpen,
-} from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Folder, FolderOpen } from 'lucide-react'
+import { useState } from 'react'
 
 import type { BookmarkFolder } from '@/types/bookmark'
 
 import StreamerItem from '@/content/components/card/StreamerItem'
+import FolderContextMenuTooltip from '@/content/components/FolderContextMenuTooltip'
 import FolderTooltip from '@/content/components/FolderTooltip'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import DeleteFolderModal from '@/content/components/modal/DeleteFolderModal'
 import EditFolderNameModal from '@/content/components/modal/EditFolderNameModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
-import useClickAway from '@/content/hooks/useClickAway'
 import useDndStyle from '@/content/hooks/useDndStyle'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
+import useRightClickMenu from '@/content/hooks/useRightClickMenu'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
 
 interface IFolderItemProps {
@@ -29,10 +23,7 @@ interface IFolderItemProps {
 }
 
 export default function FolderItem({ folder }: IFolderItemProps) {
-  const menuRef = useRef<HTMLDivElement | null>(null)
-  useClickAway(menuRef, () => setShowPopup(false))
   const isNavExpanded = useNavExpanded()
-  const [showPopup, setShowPopup] = useState(false)
   const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
 
   const { data: bookmarkData } = useBookmarkState()
@@ -45,6 +36,14 @@ export default function FolderItem({ folder }: IFolderItemProps) {
     transition,
     isDragging,
   } = useSortable({ id: folder.id })
+  const {
+    open: contextMenuOpen,
+    payload,
+    show: showContextMenu,
+    hide: hideContextMenu,
+    attachMenuEl,
+    armInternalDownGuard,
+  } = useRightClickMenu()
 
   const { style } = useDndStyle(transform, transition)
   const {
@@ -73,6 +72,17 @@ export default function FolderItem({ folder }: IFolderItemProps) {
   const { show: showToolTipSection, hide: hideTooltipSection } =
     useShowTooltip()
 
+  const handleFolderContextMenuOpen = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    showContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      inFolder: false,
+      isNavExpanded,
+    })
+  }
   if (!isNavExpanded) {
     return (
       <div
@@ -172,10 +182,11 @@ export default function FolderItem({ folder }: IFolderItemProps) {
         {...attributes}
       >
         <div
-          className={`dark:hover:bg-bg-04 dark:bg-bg-01 hover:bg-content-hover-02 flex cursor-pointer items-center justify-between rounded bg-white pl-1 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
+          className={`dark:hover:bg-bg-04 dark:bg-bg-01 hover:bg-content-hover-02 flex cursor-pointer items-center justify-between rounded bg-white pt-1 pb-1 pl-1 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
           onClick={() => {
             setIsOpenFolder(!isOpenFolder)
           }}
+          onContextMenu={handleFolderContextMenuOpen}
         >
           <div
             className="flex min-w-0 grow items-center space-x-2"
@@ -186,11 +197,16 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             ) : (
               <Folder className="h-5 w-5" />
             )}
-            <p className="max-w-[105px] truncate">{folder.name}</p>
+            <p className="max-w-[118px] truncate">{folder.name}</p>
           </div>
 
-          <div className="relative flex gap-x-1">
-            <button
+          <div className="relative flex items-center gap-x-0.5">
+            {/* 라이브 중인 스트리머 숫자 카운트  */}
+            {/* <span className="dark:text-content-04 text-bg-05 pr-1.5 text-xs font-semibold">
+              (13/15)
+            </span> */}
+            {/* 플러스 버튼 코드는 향후 삭제 예정 */}
+            {/* <button
               type="button"
               className={`dark:hover:bg-bg-layer-03 hover:bg-content-hover-01 cursor-pointer rounded p-1`}
               onMouseDown={(e) => {
@@ -198,45 +214,8 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                 OpenAddItemModal()
               }}
             >
-              <Plus className="h-5.5 w-5.5" />
-            </button>
-            <button
-              type="button"
-              className={`dark:hover:bg-bg-layer-03 hover:bg-content-hover-01 cursor-pointer rounded p-1`}
-              onMouseDown={(e) => {
-                e.stopPropagation()
-                setShowPopup(!showPopup)
-              }}
-            >
-              <EllipsisVertical className="h-5.5 w-5.5" />
-            </button>
-            {showPopup && (
-              <div
-                ref={menuRef}
-                className="dark:bg-bg-layer-02 bg-content-hover-02 absolute right-0.5 bottom-7 flex gap-x-1 rounded px-2 py-1"
-              >
-                <button
-                  className="dark:text-bg-chzzk-01 text-bg-chzzk-light-01 dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded p-2"
-                  onMouseDown={(e) => {
-                    e.stopPropagation()
-                    openEditFolderModal()
-                    setShowPopup(false)
-                  }}
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-                <button
-                  className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 text-warn-light cursor-pointer rounded p-2 dark:text-red-500"
-                  onMouseDown={(e) => {
-                    e.stopPropagation()
-                    openDeleteFolderModal()
-                    setShowPopup(false)
-                  }}
-                >
-                  <Trash className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+              <Plus className="h-4 w-4" />
+            </button> */}
           </div>
         </div>
         {isOpenFolder &&
@@ -276,6 +255,18 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             }
             return null
           })()}
+
+        <FolderContextMenuTooltip
+          x={payload?.x ?? 0}
+          y={payload?.y ?? 0}
+          open={contextMenuOpen}
+          onClose={hideContextMenu}
+          onEditFolderName={openEditFolderModal}
+          onDeleteFolder={openDeleteFolderModal}
+          onAddFolderItem={OpenAddItemModal}
+          attachMenuEl={attachMenuEl}
+          armInternalDownGuard={armInternalDownGuard}
+        />
       </div>
     </>
   )

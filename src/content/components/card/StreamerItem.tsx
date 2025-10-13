@@ -163,7 +163,7 @@ export default function StreamerItem({
             streamer={streamer}
             x={payload?.x ?? 0}
             y={payload?.y ?? 0}
-            open={contextMenuOpen && payload?.streamer.id === streamer.id}
+            open={contextMenuOpen && payload?.streamer?.id === streamer.id}
             onClose={hideContextMenu}
             onOpenNewTab={openNewTab}
             onDelete={onDelete}
@@ -256,7 +256,7 @@ export default function StreamerItem({
           streamer={streamer}
           x={payload?.x ?? 0}
           y={payload?.y ?? 0}
-          open={contextMenuOpen && payload?.streamer.id === streamer.id}
+          open={contextMenuOpen && payload?.streamer?.id === streamer.id}
           onClose={hideContextMenu}
           onOpenNewTab={openNewTab}
           onDelete={onDelete}

@@ -7,7 +7,7 @@ import { openContextMenu, closeContextMenu } from '@/content/bus/contextMenuBus'
 export type IRightClickMenuPayload = {
   x: number
   y: number
-  streamer: BookmarkItem
+  streamer?: BookmarkItem
   inFolder: boolean
   isNavExpanded: boolean
 }
@@ -30,7 +30,8 @@ export default function useRightClickMenu() {
     setPayload(p)
     setOpen(true)
     ignoreUntil.current = performance.now() + 30
-    openContextMenu(p.streamer.hashId)
+
+    openContextMenu(p.x, p.y)
   }, [])
 
   const hide = useCallback(() => {

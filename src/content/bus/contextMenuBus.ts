@@ -1,24 +1,25 @@
 type TContextMenuState = {
   open: boolean
-  hashId: string | null
+  x: number | null
+  y: number | null
 }
 
 const bus = new EventTarget()
 
-let state: TContextMenuState = { open: false, hashId: null }
+let state: TContextMenuState = { open: false, x: null, y: null }
 
 export function getContextMenuState(): TContextMenuState {
   return state
 }
 
-export function openContextMenu(hashId: string) {
-  state = { open: true, hashId }
+export function openContextMenu(x: number, y: number) {
+  state = { open: true, x, y }
   bus.dispatchEvent(
     new CustomEvent<TContextMenuState>('ctm:change', { detail: state }),
   )
 }
 export function closeContextMenu() {
-  state = { open: false, hashId: null }
+  state = { open: false, x: null, y: null }
   bus.dispatchEvent(
     new CustomEvent<TContextMenuState>('ctm:change', { detail: state }),
   )

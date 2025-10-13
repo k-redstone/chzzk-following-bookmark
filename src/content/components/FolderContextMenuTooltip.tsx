@@ -1,31 +1,29 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import type { BookmarkItem } from '@/types/bookmark'
-
-interface IContextMenuTooltipProps {
-  streamer: BookmarkItem
+interface IFolderContextMenuTooltipProps {
   x: number
   y: number
   open: boolean
   onClose: () => void
-  onOpenNewTab: () => void
-  onDelete: (s: BookmarkItem) => void
+  onEditFolderName: () => void
+  onDeleteFolder: () => void
+  onAddFolderItem: () => void
   attachMenuEl: (el: HTMLElement | null) => void
   armInternalDownGuard: () => void
 }
 
-export default function ContextMenuTooltip({
-  streamer,
+export default function FolderContextMenuTooltip({
   x,
   y,
   open,
   onClose,
-  onOpenNewTab,
-  onDelete,
+  onEditFolderName,
+  onDeleteFolder,
+  onAddFolderItem,
   attachMenuEl,
   armInternalDownGuard,
-}: IContextMenuTooltipProps) {
+}: IFolderContextMenuTooltipProps) {
   const menuRef = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<{ left: number; top: number }>({
     left: x,
@@ -110,8 +108,9 @@ export default function ContextMenuTooltip({
       if (!t) return
       ev.stopPropagation()
       const a = t.dataset.action
-      if (a === 'newtab') onOpenNewTab()
-      else if (a === 'delete') onDelete(streamer)
+      if (a === 'editFolderName') onEditFolderName()
+      else if (a === 'deleteFolder') onDeleteFolder()
+      else if (a === 'addFolderItem') onAddFolderItem()
       onClose()
     }
 
@@ -131,7 +130,7 @@ export default function ContextMenuTooltip({
       el.removeEventListener('click', onClick)
       el.removeEventListener('mouseup', onMouseUp)
     }
-  }, [open, onOpenNewTab, onDelete, onClose, streamer])
+  }, [open, onEditFolderName, onDeleteFolder, onAddFolderItem, onClose])
 
   if (!open) return null
 
@@ -209,17 +208,24 @@ export default function ContextMenuTooltip({
       >
         <ul style={listStyle}>
           <li
-            data-action="newtab"
+            data-action="addFolderItem"
             style={itemBaseStyle}
             tabIndex={0}
           >
-            새 탭에서 열기
+            스트리머 추가
+          </li>
+          <li
+            data-action="editFolderName"
+            style={itemBaseStyle}
+            tabIndex={0}
+          >
+            폴더 이름 수정
           </li>
 
           <div style={dividerStyle} />
 
           <li
-            data-action="delete"
+            data-action="deleteFolder"
             style={{ ...itemBaseStyle, ...dangerStyle }}
             tabIndex={0}
           >

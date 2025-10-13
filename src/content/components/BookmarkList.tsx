@@ -10,6 +10,7 @@ export default function BookmarkList() {
   const isNavExpanded = useNavExpanded()
   if (!isSuccess) return null
 
+  console.log(bookmarkData)
   return (
     <SortableContext
       items={bookmarkData.root}
