@@ -2,7 +2,7 @@ import type { BookmarkItem } from '@/types/bookmark'
 import type { ILiveContent } from '@/types/follow'
 
 import PreviewAuto from '@/content/components/PreviewAuto'
-import { getPreviewSettings } from '@/content/state/previewSettings'
+import { getPopupSettings } from '@/content/state/PopupSettings'
 
 interface IItemTooltipProps {
   liveStatus?: ILiveContent
@@ -49,7 +49,7 @@ export default function ItemTooltip({
           hashId={streamer.hashId}
           opts={{
             delayMs: 600,
-            volume: getPreviewSettings().previewVolume,
+            volume: getPopupSettings().previewVolume,
             maxLevel: 480,
           }}
         />
@@ -70,7 +70,7 @@ export default function ItemTooltip({
         hashId={streamer.hashId}
         opts={{
           delayMs: 600,
-          volume: getPreviewSettings().previewVolume,
+          volume: getPopupSettings().previewVolume,
           maxLevel: 480,
         }}
       />

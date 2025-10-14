@@ -1,7 +1,7 @@
 import { useRef, type JSX } from 'react'
 
 import useLightDomHost from '@/content/hooks/useLightDomHost'
-import { getPreviewSettings } from '@/content/state/previewSettings'
+import { getPopupSettings } from '@/content/state/PopupSettings'
 
 export interface IPreviewViewProps {
   visible: boolean
@@ -23,7 +23,7 @@ export default function PreviewView({
     containerId,
     anchorRef.current,
     visible,
-    getPreviewSettings().previewWidth,
+    getPopupSettings().previewWidth,
   )
   if (!visible) return null
 

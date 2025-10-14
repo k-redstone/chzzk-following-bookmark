@@ -1,3 +1,5 @@
+import type { ILiveContent } from '@/types/follow'
+
 type BookmarkNodeType = 'folder' | 'item'
 
 export interface BookmarkFolder {
@@ -21,3 +23,13 @@ export type BookmarkNode = BookmarkFolder | BookmarkItem
 export interface BookmarkState {
   root: BookmarkNode[]
 }
+
+// bookmark & livestatus 통합
+type EnrichedItem = BookmarkItem & {
+  liveInfo: ILiveContent
+}
+type EnrichedFolder = Omit<BookmarkFolder, 'items'> & {
+  items: Array<EnrichedItem>
+  meta: { liveCount: number }
+}
+type EnrichedRoot = Array<EnrichedItem | EnrichedFolder>

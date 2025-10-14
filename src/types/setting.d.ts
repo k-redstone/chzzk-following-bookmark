@@ -7,6 +7,7 @@ export interface ISettingState {
   preview: boolean
   preview_view_width: number
   preview_volume: number
+  show_live_first: boolean
 }
 
 export interface IImportMsg {

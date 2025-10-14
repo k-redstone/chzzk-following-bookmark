@@ -7,6 +7,7 @@ import {
   DragOverlay,
   type UniqueIdentifier,
 } from '@dnd-kit/core'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Plus,
   ChevronDown,
@@ -23,7 +24,6 @@ import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
 import ImportErrorModal from '@/content/components/modal/ImportErrorModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
-import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
 import { handleDragEnd } from '@/utils/helper'
@@ -38,11 +38,11 @@ export default function App() {
     }),
   )
   const { data: bookmarkData, isSuccess, invalidate } = useBookmarkState()
-  const { invalidateAll: invalidateAllLiveStatus } = useStreamerLiveStatus()
+  const queryClient = useQueryClient()
+
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
   const [isRotating, setIsRotating] = useState<boolean>(false)
   const [errorMsg, setErrorMsg] = useState<IImportMsg>()
-
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
   const {
@@ -111,7 +111,9 @@ export default function App() {
               className="dark:hover:bg-bg-layer-06 hover:bg-content-hover-01 cursor-pointer rounded p-[3px] dark:hover:text-white"
               onClick={() => {
                 setIsRotating(true)
-                invalidateAllLiveStatus()
+                queryClient.invalidateQueries({
+                  queryKey: ['livestatus', 'all'],
+                })
 
                 setTimeout(() => {
                   setIsRotating(false)

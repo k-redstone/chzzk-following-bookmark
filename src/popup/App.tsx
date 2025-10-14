@@ -144,6 +144,14 @@ export default function App() {
               }}
               label="서비스 바로가기"
             />
+            <ToggleSwitch
+              checked={data.show_live_first}
+              onChange={async () => {
+                await toggleSettingTab('show_live_first')
+                invalidate()
+              }}
+              label="라이브 끌어올리기"
+            />
           </div>
         </DividerSection>
 

@@ -11,6 +11,7 @@ import type { OpenTabErr, OpenTabResp } from '@/utils/openTab'
 import { FETCH_FOLLOWING_URL } from '@/constants/endpoint'
 import { getBookmarkState } from '@/stores/bookmarkStore'
 import { getSettingState } from '@/stores/settingStore'
+import { mapWithConcurrency } from '@/utils/liveStatus'
 
 // ---------------------------------------------
 // Types
@@ -105,6 +106,41 @@ async function fetchStreamerLiveStatus(hashId: string) {
     `https://api.chzzk.naver.com/polling/v3.1/channels/${hashId}/live-status`,
   )
   return liveStatus.content
+}
+
+// 스트리머 live-status batch fetch
+async function fetchStreamerLiveStatusBatch(
+  ids: string[],
+  concurrency?: number,
+) {
+  if (!ids.length) return { ok: true, items: [], failedIds: [] }
+
+  const results = await mapWithConcurrency(
+    ids,
+    async (id) => {
+      try {
+        const item = await fetchStreamerLiveStatus(id)
+        return { id, item }
+      } catch {
+        return { id, item: null }
+      }
+    },
+    concurrency,
+  )
+
+  const items = results
+    .filter((r) => r.item)
+    .map((r) => ({ id: r.id, ...(r.item as ILiveContent) }))
+
+  const okSet = new Set(
+    items.map((i) => (i.channelId ? String(i.channelId) : i.id)),
+  )
+  const failedIds = results
+    .filter((r) => !r.item)
+    .map((r) => r.id)
+    .filter((id) => !okSet.has(id))
+
+  return { ok: true, items, failedIds }
 }
 
 // 스트리머 채널 fetch
@@ -213,16 +249,17 @@ function createTabChrome(
 // Message router
 // ---------------------------------------------
 
-const messageHandlers: Record<string, (...args: string[]) => Promise<unknown>> =
-  {
-    fetchFollowList,
-    fetchStreamerLiveStatus,
-    fetchChannelStatus,
-    fetchLiveDetail,
-    getSettingState,
-    setSettingState,
-    getBookmarkState,
-  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const messageHandlers: Record<string, (...args: any[]) => Promise<unknown>> = {
+  fetchFollowList,
+  fetchStreamerLiveStatus,
+  fetchStreamerLiveStatusBatch,
+  fetchChannelStatus,
+  fetchLiveDetail,
+  getSettingState,
+  setSettingState,
+  getBookmarkState,
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null

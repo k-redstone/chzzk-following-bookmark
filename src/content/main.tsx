@@ -10,7 +10,7 @@ import type { ISettingState } from '@/types/setting'
 import { TAB_INDEX } from '@/constants'
 import { SHADOW_HOST_ID } from '@/constants'
 import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
-import { setPreviewState } from '@/content/state/previewSettings'
+import { setPopupState } from '@/content/state/PopupSettings'
 import App from '@/content/views/App'
 import { getBookmarkState, saveBookmarkState } from '@/stores/bookmarkStore'
 import { handleLiveChatPower } from '@/utils/chatPowerAutoClick'
@@ -45,8 +45,9 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
     if (target) {
       applyTabVisibility(setting, target, TAB_INDEX)
       handleLiveChatPower(Boolean(setting.chatting_power))
-      setPreviewState(
+      setPopupState(
         Boolean(setting.preview),
+        Boolean(setting.show_live_first),
         setting.preview_view_width,
         setting.preview_volume,
       )
@@ -82,8 +83,9 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
     if (msg.type === 'UPDATE_SETTING' && msg.state && target) {
       applyTabVisibility(msg.state, target, TAB_INDEX)
       handleLiveChatPower(Boolean(msg.state.chatting_power))
-      setPreviewState(
+      setPopupState(
         Boolean(msg.state.preview),
+        Boolean(msg.state.show_live_first),
         msg.state.preview_view_width,
         msg.state.preview_volume,
       )

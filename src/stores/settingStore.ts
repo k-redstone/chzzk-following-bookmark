@@ -35,6 +35,7 @@ async function getState(): Promise<ISettingState> {
               chatting_power: true,
               preview_view_width: 380,
               preview_volume: 10,
+              show_live_first: false,
             },
           )
         req.onerror = () => reject(req.error)

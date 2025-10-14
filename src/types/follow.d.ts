@@ -55,6 +55,7 @@ export interface IFollowingListContent {
   followingList: IFollowingItem[]
 }
 
+// livestatus
 export interface ILiveContent {
   channelId: string
   liveTitle: string

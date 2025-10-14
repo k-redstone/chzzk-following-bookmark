@@ -3,7 +3,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Folder, FolderOpen } from 'lucide-react'
 import { useState } from 'react'
 
-import type { BookmarkFolder } from '@/types/bookmark'
+import type { EnrichedFolder } from '@/types/bookmark'
 
 import StreamerItem from '@/content/components/card/StreamerItem'
 import FolderContextMenuTooltip from '@/content/components/FolderContextMenuTooltip'
@@ -11,7 +11,6 @@ import FolderTooltip from '@/content/components/FolderTooltip'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import DeleteFolderModal from '@/content/components/modal/DeleteFolderModal'
 import EditFolderNameModal from '@/content/components/modal/EditFolderNameModal'
-import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
 import useDndStyle from '@/content/hooks/useDndStyle'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
@@ -19,14 +18,12 @@ import useRightClickMenu from '@/content/hooks/useRightClickMenu'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
 
 interface IFolderItemProps {
-  folder: BookmarkFolder
+  folder: EnrichedFolder
 }
 
 export default function FolderItem({ folder }: IFolderItemProps) {
   const isNavExpanded = useNavExpanded()
   const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
-
-  const { data: bookmarkData } = useBookmarkState()
 
   const {
     attributes,
@@ -116,24 +113,21 @@ export default function FolderItem({ folder }: IFolderItemProps) {
 
         {isOpenFolder &&
           (() => {
-            const node = bookmarkData?.root.find(
-              (data) => data.id === folder.id,
-            )
-            if (node?.type === 'folder') {
+            if (folder?.type === 'folder') {
               return (
                 <SortableContext
-                  items={node.items}
+                  items={folder.items}
                   strategy={verticalListSortingStrategy}
                 >
                   <ul className={`flex flex-col`}>
-                    {node.items.length === 0 ? (
+                    {folder.items.length === 0 ? (
                       <div className="p-[5px]">
                         <p className="text-center text-[13px] text-white">
                           추가된 스트리머가 없습니다.
                         </p>
                       </div>
                     ) : (
-                      node.items.map((item) => (
+                      folder.items.map((item) => (
                         <li key={item.id}>
                           <StreamerItem
                             isNavExpanded={isNavExpanded}
@@ -202,9 +196,9 @@ export default function FolderItem({ folder }: IFolderItemProps) {
 
           <div className="relative flex items-center gap-x-0.5">
             {/* 라이브 중인 스트리머 숫자 카운트  */}
-            {/* <span className="dark:text-content-04 text-bg-05 pr-1.5 text-xs font-semibold">
-              (13/15)
-            </span> */}
+            <span className="dark:text-content-04 text-bg-05 pr-1.5 text-xs font-semibold">
+              ({folder.meta.liveCount}/{folder.items.length})
+            </span>
             {/* 플러스 버튼 코드는 향후 삭제 예정 */}
             {/* <button
               type="button"
@@ -220,26 +214,23 @@ export default function FolderItem({ folder }: IFolderItemProps) {
         </div>
         {isOpenFolder &&
           (() => {
-            const node = bookmarkData?.root.find(
-              (data) => data.id === folder.id,
-            )
-            if (node?.type === 'folder') {
+            if (folder?.type === 'folder') {
               return (
                 <SortableContext
-                  items={node.items}
+                  items={folder.items}
                   strategy={verticalListSortingStrategy}
                 >
                   <ul
                     className={`dark:border-l-bg-chzzk-04 border-l-bg-chzzk-light-01 ml-4 flex flex-col border-l-2 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
                   >
-                    {node.items.length === 0 ? (
+                    {folder.items.length === 0 ? (
                       <div className="p-[5px]">
                         <p className="text-content-05 text-center text-[13px]">
                           추가된 스트리머가 없습니다.
                         </p>
                       </div>
                     ) : (
-                      node.items.map((item) => (
+                      folder.items.map((item) => (
                         <li key={item.id}>
                           <StreamerItem
                             isNavExpanded={isNavExpanded}

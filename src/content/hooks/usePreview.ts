@@ -5,9 +5,9 @@ import type { LiveInfo } from '@/types/preview-bridge'
 
 import { ensurePageBridgeInjected } from '@/bridge/ensurePageBridgeInjected'
 import {
-  subscribePreviewSettings,
-  getPreviewSettings,
-} from '@/content/state/previewSettings'
+  subscribePopupSettings,
+  getPopupSettings,
+} from '@/content/state/PopupSettings'
 
 type Milliseconds = number
 
@@ -45,7 +45,7 @@ export function usePreview(opts?: InlinePreviewOptions) {
   }
 
   const [enabled, setEnabled] = useState<boolean>(
-    getPreviewSettings().previewEnabled,
+    getPopupSettings().previewEnabled,
   )
   const [visible, setVisible] = useState<boolean>(false)
   const [thumb, setThumb] = useState<string>('')
@@ -64,7 +64,7 @@ export function usePreview(opts?: InlinePreviewOptions) {
 
   // 설정 구독
   useEffect(() => {
-    const unsub = subscribePreviewSettings((s) => setEnabled(s.previewEnabled))
+    const unsub = subscribePopupSettings((s) => setEnabled(s.previewEnabled))
     return () => unsub()
   }, [])
 
