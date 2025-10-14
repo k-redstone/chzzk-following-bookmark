@@ -1,4 +1,3 @@
-// openTab.ts
 export interface OpenTabOptions {
   active?: boolean
   nextToCurrent?: boolean
