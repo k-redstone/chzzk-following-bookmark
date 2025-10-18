@@ -67,7 +67,7 @@ export function useStreamerLiveStatusAll(
         concurrency,
       )
       const liveMap: ILiveStatusMap = Object.fromEntries(
-        items.map((i) => [i.channelId, i] as const),
+        items.map((item) => [item.channelId, item] as const),
       )
       return { liveMap, failedIds, fetchedAt: now }
     },

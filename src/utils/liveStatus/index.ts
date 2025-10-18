@@ -149,7 +149,6 @@ export function enrichBookmarkTree(
   function enrichFolder(folder: BookmarkFolder): EnrichedFolder {
     const enrichedChildren: Array<EnrichedItem | EnrichedFolder> = []
     let liveCount = 0
-
     // 1) 자식들을 먼저 Enrich
     for (const child of folder.items ?? []) {
       if (isItem(child)) {
@@ -158,7 +157,8 @@ export function enrichBookmarkTree(
           ...child,
           liveInfo: live,
         }
-        if (enriched.liveInfo.status === 'OPEN') liveCount += 1
+        if (enriched.liveInfo && enriched.liveInfo.status === 'OPEN')
+          liveCount += 1
         enrichedChildren.push(enriched)
       } else if (isFolder(child)) {
         const enriched = enrichFolder(child)

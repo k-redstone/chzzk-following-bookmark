@@ -120,24 +120,28 @@ async function fetchStreamerLiveStatusBatch(
     async (id) => {
       try {
         const item = await fetchStreamerLiveStatus(id)
-        return { id, item }
+        return { id, ok: true, item }
       } catch {
-        return { id, item: null }
+        return { id, ok: false, item: null }
       }
     },
     concurrency,
   )
 
   const items = results
-    .filter((r) => r.item)
-    .map((r) => ({ id: r.id, ...(r.item as ILiveContent) }))
+    .filter((result) => result.ok)
+    .map((result) =>
+      result.item
+        ? { id: result.id, ...(result.item as ILiveContent) }
+        : { id: result.id, channelId: result.id },
+    )
 
   const okSet = new Set(
     items.map((i) => (i.channelId ? String(i.channelId) : i.id)),
   )
   const failedIds = results
-    .filter((r) => !r.item)
-    .map((r) => r.id)
+    .filter((result) => !result.ok)
+    .map((result) => result.id)
     .filter((id) => !okSet.has(id))
 
   return { ok: true, items, failedIds }
