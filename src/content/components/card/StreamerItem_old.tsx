@@ -1,7 +1,7 @@
 import { useSortable, type AnimateLayoutChanges } from '@dnd-kit/sortable'
 import { useEffect, useState } from 'react'
 
-import type { EnrichedItem } from '@/types/bookmark'
+import type { BookmarkItem } from '@/types/bookmark'
 
 import { DEFAULT_IMAGE_URL } from '@/constants'
 import {
@@ -11,6 +11,7 @@ import {
 import ContextMenuTooltip from '@/content/components/ContextMenuTooltip'
 import ItemTooltip from '@/content/components/ItemTooltip'
 import DeleteItemConfirmModal from '@/content/components/modal/DeleteItemConfirmModal'
+import useStreamerLiveStatus from '@/content/hooks/queries/useStreamerLiveStatus'
 import useDndStyle from '@/content/hooks/useDndStyle'
 import useModal from '@/content/hooks/useModal'
 import useRightClickMenu from '@/content/hooks/useRightClickMenu'
@@ -18,16 +19,17 @@ import useShowTooltip from '@/content/hooks/useShowTooltip'
 import { openTab } from '@/utils/openTab'
 
 interface IStreamerItemProps {
-  streamer: EnrichedItem
+  streamer: BookmarkItem
   inFolder: boolean
   isNavExpanded: boolean
 }
 
-export default function StreamerItem({
+export default function StreamerItem_old({
   streamer,
   inFolder,
   isNavExpanded,
 }: IStreamerItemProps) {
+  const { data: liveStatusData } = useStreamerLiveStatus(streamer.hashId)
   const {
     isOpen: isOpenDeleteItemConfirmModal,
     closeModal: closeDeleteItemConfirmModal,
@@ -53,7 +55,7 @@ export default function StreamerItem({
 
   const [isAnyMenuOpen, setIsAnyMenuOpen] = useState(getContextMenuState().open)
 
-  const isLive = streamer.liveInfo.status === 'OPEN'
+  const isLive = liveStatusData?.status === 'OPEN'
   const url = isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`
 
   const animateLayoutChanges: AnimateLayoutChanges = ({
@@ -128,6 +130,12 @@ export default function StreamerItem({
           {...attributes}
           {...listeners}
           onClick={(e) => handleMoveToStreamer(e)}
+          onMouseDown={(e) => {
+            if (e.button === 1) {
+              e.preventDefault()
+              openNewTab()
+            }
+          }}
           onMouseEnter={() => {
             if (isLive && !isAnyMenuOpen) {
               openItemTooltip()
@@ -138,12 +146,6 @@ export default function StreamerItem({
             if (isLive) {
               closeItemTooltip()
               hideTooltipSection()
-            }
-          }}
-          onMouseDown={(e) => {
-            if (e.button === 1) {
-              e.preventDefault()
-              openNewTab()
             }
           }}
           onContextMenu={handleContextMenuOpen}
@@ -177,7 +179,7 @@ export default function StreamerItem({
           {isOpenItemTooltip && !isAnyMenuOpen && (
             <>
               <ItemTooltip
-                liveStatus={streamer.liveInfo}
+                liveStatus={liveStatusData}
                 streamer={streamer}
                 inFolder={inFolder}
                 isNavExpanded={isNavExpanded}
@@ -245,7 +247,7 @@ export default function StreamerItem({
           </span>
           {isLive && (
             <span className="text-bg-05 truncate text-[11px] dark:text-gray-400">
-              {streamer.liveInfo.liveCategoryValue}
+              {liveStatusData.liveCategoryValue}
             </span>
           )}
         </div>
@@ -254,9 +256,9 @@ export default function StreamerItem({
             <span className="text-warn-light text-[18px] leading-none dark:text-[#FF5454]">
               •
             </span>
-            {streamer.liveInfo.concurrentUserCount > 0 && (
+            {liveStatusData.concurrentUserCount > 0 && (
               <span className="text-warn-light font-semibold dark:text-[#FF5454]">
-                {streamer.liveInfo.concurrentUserCount.toLocaleString()}
+                {liveStatusData.concurrentUserCount.toLocaleString()}
               </span>
             )}
           </div>
@@ -276,7 +278,7 @@ export default function StreamerItem({
 
         {isOpenItemTooltip && !isAnyMenuOpen && (
           <ItemTooltip
-            liveStatus={streamer.liveInfo}
+            liveStatus={liveStatusData}
             streamer={streamer}
             inFolder={inFolder}
             isNavExpanded={isNavExpanded}

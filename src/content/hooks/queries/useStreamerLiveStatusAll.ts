@@ -14,7 +14,7 @@ export interface UseLiveStatusAllOptions {
 }
 
 export interface UseLiveStatusAllResult {
-  liveMap: ILiveStatusMap
+  liveMap: ILiveStatusMap | null
   failedIds: string[]
   fetchedAt: number
   isLoading: boolean
@@ -75,7 +75,7 @@ export function useStreamerLiveStatusAll(
   })
 
   return {
-    liveMap: query.data?.liveMap ?? {},
+    liveMap: query.data?.liveMap ?? null,
     failedIds: query.data?.failedIds ?? [],
     fetchedAt: query.data?.fetchedAt ?? 0,
     isLoading: query.isLoading,
