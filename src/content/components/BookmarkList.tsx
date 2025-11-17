@@ -53,7 +53,6 @@ export default function BookmarkList() {
       >
         <ul className={`flex flex-col`}>
           {bookmarkData.root.map((node) => {
-            console.log(node)
             if (node.type === 'folder') {
               return (
                 <li key={node.id}>
