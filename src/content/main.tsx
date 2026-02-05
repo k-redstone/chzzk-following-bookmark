@@ -9,14 +9,19 @@ import type { ISettingState } from '@/types/setting'
 
 import { TAB_INDEX } from '@/constants'
 import { SHADOW_HOST_ID } from '@/constants'
-import { ASIDE_CONTENT_TARGET_CLASS } from '@/constants/chzzkEl'
+import {
+  ASIDE_CONTENT_TARGET_CLASS,
+  NAV_WRAPPER_CLASS,
+} from '@/constants/chzzkEl'
 import { setPopupState } from '@/content/state/PopupSettings'
 import App from '@/content/views/App'
 import { getBookmarkState, saveBookmarkState } from '@/stores/bookmarkStore'
 import { handleLiveChatPower } from '@/utils/chatPowerAutoClick'
-import createShadowRoot from '@/utils/createShadowRoot'
+import { createShadowRoot } from '@/utils/createShadowRoot'
+import { ensureOverlayHost } from '@/utils/ensureOverlayHost'
 import { sendRuntimeMessage } from '@/utils/helper'
 import { observeTabList } from '@/utils/mutationObserver'
+import { syncDarkModeWithHost } from '@/utils/syncDarkModeWithHost'
 import { applyTabVisibility } from '@/utils/tabvisibility'
 ;(async () => {
   const targetSelector = `.${ASIDE_CONTENT_TARGET_CLASS}`
@@ -24,7 +29,18 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
   const mountApp = (target: Element) => {
     if (document.getElementById(SHADOW_HOST_ID)) return
 
-    const shadowRoot = createShadowRoot(target, [styles])
+    ensureOverlayHost()
+
+    const { shadowRoot, wrapper } = createShadowRoot({
+      hostId: SHADOW_HOST_ID,
+      hostTag: 'nav',
+      hostClassName: NAV_WRAPPER_CLASS,
+      styles: [styles],
+      mountTo: target,
+      insertBefore: target.children[1] ?? null,
+    })
+    syncDarkModeWithHost(wrapper)
+
     const queryClient = new QueryClient()
 
     createRoot(shadowRoot.children[0]).render(
