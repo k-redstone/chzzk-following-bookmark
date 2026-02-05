@@ -3,6 +3,7 @@ export interface ISettingState {
   category: boolean
   partner: boolean
   service: boolean
+  live_schedule: boolean
   chatting_power: boolean
   preview: boolean
   preview_view_width: number

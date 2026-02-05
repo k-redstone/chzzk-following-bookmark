@@ -129,6 +129,14 @@ export default function App() {
               label="인기 카테고리"
             />
             <ToggleSwitch
+              checked={data.live_schedule}
+              onChange={async () => {
+                await toggleSettingTab('live_schedule')
+                invalidate()
+              }}
+              label="방송 일정"
+            />
+            <ToggleSwitch
               checked={data.partner}
               onChange={async () => {
                 await toggleSettingTab('partner')

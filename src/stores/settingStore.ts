@@ -32,6 +32,7 @@ async function getState(): Promise<ISettingState> {
               partner: true,
               service: true,
               preview: true,
+              live_schedule: true,
               chatting_power: true,
               preview_view_width: 380,
               preview_volume: 10,
