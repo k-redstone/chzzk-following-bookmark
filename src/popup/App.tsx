@@ -160,6 +160,14 @@ export default function App() {
               }}
               label="라이브 끌어올리기"
             />
+            <ToggleSwitch
+              checked={data.hide_offline_streamers}
+              onChange={async () => {
+                await toggleSettingTab('hide_offline_streamers')
+                invalidate()
+              }}
+              label="오프라인 유저 숨기기"
+            />
           </div>
         </DividerSection>
 

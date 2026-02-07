@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import type { BookmarkFolder } from '@/types/bookmark'
+import type { BookmarkFolder, EnrichedFolder } from '@/types/bookmark'
 
 import CommonModal from '@/content/components/modal/CommonModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
@@ -8,7 +8,7 @@ import { renameBookmarkFolder } from '@/stores/bookmarkStore'
 
 interface IEditFolderNameModalProps {
   handleModalClose: () => void
-  folder: BookmarkFolder
+  folder: Pick<BookmarkFolder | EnrichedFolder, 'id' | 'name'>
 }
 
 export default function EditFolderNameModal({

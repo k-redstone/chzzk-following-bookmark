@@ -9,6 +9,7 @@ export interface ISettingState {
   preview_view_width: number
   preview_volume: number
   show_live_first: boolean
+  hide_offline_streamers: boolean
 }
 
 export interface IImportMsg {

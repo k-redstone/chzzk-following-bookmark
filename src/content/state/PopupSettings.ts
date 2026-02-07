@@ -3,6 +3,7 @@ export type TPopupSettingsState = {
   showLiveFirst: boolean
   previewWidth: number
   previewVolume: number
+  hideOfflineStreamers: boolean
 }
 
 type Listener = (state: TPopupSettingsState) => void
@@ -12,6 +13,7 @@ const state: TPopupSettingsState = {
   previewWidth: 380,
   previewVolume: 10,
   showLiveFirst: false,
+  hideOfflineStreamers: false,
 }
 const listeners = new Set<Listener>()
 
@@ -24,11 +26,13 @@ export function setPopupState(
   showLiveFirst: boolean,
   previewWidth: number,
   previewVolume: number,
+  hideOfflineStreamers: boolean,
 ): void {
   state.previewEnabled = previewEnabled
   state.previewWidth = previewWidth
   state.previewVolume = previewVolume
   state.showLiveFirst = showLiveFirst
+  state.hideOfflineStreamers = hideOfflineStreamers
   for (const listener of listeners) listener(getPopupSettings())
 }
 

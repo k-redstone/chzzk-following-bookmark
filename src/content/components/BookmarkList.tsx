@@ -21,6 +21,9 @@ export default function BookmarkList() {
   const [isShowLiveFirst, setIsShowLiveFirst] = useState<boolean>(
     getPopupSettings().showLiveFirst,
   )
+  const [hideOfflineStreamers, setHideOfflineStreamers] = useState<boolean>(
+    getPopupSettings().hideOfflineStreamers,
+  )
 
   const index = useMemo(() => {
     if (!bookmarkData || !bookmarkData.root) return null
@@ -33,13 +36,19 @@ export default function BookmarkList() {
 
   const enrichedRoot = useMemo(() => {
     if (!bookmarkData?.root || isLoading || !liveMap) return null
-    return enrichBookmarkTree(bookmarkData.root, liveMap, isShowLiveFirst)
-  }, [bookmarkData, liveMap, isShowLiveFirst, isLoading])
+    return enrichBookmarkTree(
+      bookmarkData.root,
+      liveMap,
+      isShowLiveFirst,
+      hideOfflineStreamers,
+    )
+  }, [bookmarkData, liveMap, isShowLiveFirst, hideOfflineStreamers, isLoading])
 
   useEffect(() => {
-    const unsub = subscribePopupSettings((s) =>
-      setIsShowLiveFirst(s.showLiveFirst),
-    )
+    const unsub = subscribePopupSettings((s) => {
+      setIsShowLiveFirst(s.showLiveFirst)
+      setHideOfflineStreamers(s.hideOfflineStreamers)
+    })
     return () => unsub()
   }, [])
 

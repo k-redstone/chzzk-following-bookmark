@@ -66,6 +66,7 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
         Boolean(setting.show_live_first),
         setting.preview_view_width,
         setting.preview_volume,
+        Boolean(setting.hide_offline_streamers),
       )
     }
   }
@@ -104,6 +105,7 @@ import { applyTabVisibility } from '@/utils/tabvisibility'
         Boolean(msg.state.show_live_first),
         msg.state.preview_view_width,
         msg.state.preview_volume,
+        Boolean(msg.state.hide_offline_streamers),
       )
     }
 

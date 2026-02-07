@@ -142,9 +142,12 @@ export function enrichBookmarkTree(
   root: Array<BookmarkFolder | BookmarkItem>,
   livemap: ILiveStatusMap,
   liveFirst: boolean,
+  hideOffline: boolean,
 ): EnrichedRoot {
-  const isItem = (n: any): n is BookmarkItem => n?.type === 'item'
-  const isFolder = (n: any): n is BookmarkFolder => n?.type === 'folder'
+  const isItem = (n: BookmarkFolder | BookmarkItem): n is BookmarkItem =>
+    n?.type === 'item'
+  const isFolder = (n: BookmarkFolder | BookmarkItem): n is BookmarkFolder =>
+    n?.type === 'folder'
 
   function enrichFolder(folder: BookmarkFolder): EnrichedFolder {
     const enrichedChildren: Array<EnrichedItem | EnrichedFolder> = []
@@ -153,6 +156,7 @@ export function enrichBookmarkTree(
     for (const child of folder.items ?? []) {
       if (isItem(child)) {
         const live = livemap[child.hashId]
+        if (hideOffline && live?.status === 'CLOSE') continue
         const enriched: EnrichedItem = {
           ...child,
           liveInfo: live,
@@ -196,6 +200,7 @@ export function enrichBookmarkTree(
   for (const node of root) {
     if (isItem(node)) {
       const live = livemap[node.hashId]
+      if (hideOffline && live?.status === 'CLOSE') continue
       const enriched: EnrichedItem = {
         ...node,
         liveInfo: live,

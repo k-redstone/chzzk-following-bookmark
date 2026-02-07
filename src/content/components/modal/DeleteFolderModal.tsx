@@ -1,4 +1,4 @@
-import type { BookmarkFolder } from '@/types/bookmark'
+import type { BookmarkFolder, EnrichedFolder } from '@/types/bookmark'
 
 import CommonModal from '@/content/components/modal/CommonModal'
 import useBookmarkState from '@/content/hooks/queries/useBookmarkState'
@@ -6,7 +6,7 @@ import { removeBookmarkFolder } from '@/stores/bookmarkStore'
 
 interface IDeleteFolderModalProps {
   handleModalClose: () => void
-  folder: BookmarkFolder
+  folder: Pick<BookmarkFolder | EnrichedFolder, 'id' | 'name'>
 }
 
 export default function DeleteFolderModal({

@@ -29,7 +29,7 @@ type EnrichedItem = BookmarkItem & {
   liveInfo: ILiveContent
 }
 type EnrichedFolder = Omit<BookmarkFolder, 'items'> & {
-  items: Array<EnrichedItem>
+  items: Array<EnrichedItem | EnrichedFolder>
   meta: { liveCount: number }
 }
 type EnrichedRoot = Array<EnrichedItem | EnrichedFolder>

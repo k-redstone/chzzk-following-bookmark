@@ -3,7 +3,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Folder, FolderOpen } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-import type { EnrichedFolder } from '@/types/bookmark'
+import type { EnrichedFolder, EnrichedItem } from '@/types/bookmark'
 
 import StreamerItem from '@/content/components/card/StreamerItem'
 import FolderContextMenuTooltip from '@/content/components/FolderContextMenuTooltip'
@@ -25,7 +25,9 @@ interface IFolderItemProps {
 
 export default function FolderItem({ folder }: IFolderItemProps) {
   const isNavExpanded = useNavExpanded()
-  // const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
+  const isEnrichedItem = (
+    item: EnrichedItem | EnrichedFolder,
+  ): item is EnrichedItem => item.type === 'item'
 
   const { data: folderStateMap, invalidate } = useFolderStateMap()
 
@@ -147,15 +149,24 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                         </p>
                       </div>
                     ) : (
-                      folder.items.map((item) => (
-                        <li key={item.id}>
-                          <StreamerItem
-                            isNavExpanded={isNavExpanded}
-                            streamer={item}
-                            inFolder={true}
-                          />
-                        </li>
-                      ))
+                      folder.items.map((item) => {
+                        if (isEnrichedItem(item)) {
+                          return (
+                            <li key={item.id}>
+                              <StreamerItem
+                                isNavExpanded={isNavExpanded}
+                                streamer={item}
+                                inFolder={true}
+                              />
+                            </li>
+                          )
+                        }
+                        return (
+                          <li key={item.id}>
+                            <FolderItem folder={item} />
+                          </li>
+                        )
+                      })
                     )}
                   </ul>
                 </SortableContext>
@@ -248,15 +259,24 @@ export default function FolderItem({ folder }: IFolderItemProps) {
                         </p>
                       </div>
                     ) : (
-                      folder.items.map((item) => (
-                        <li key={item.id}>
-                          <StreamerItem
-                            isNavExpanded={isNavExpanded}
-                            streamer={item}
-                            inFolder={true}
-                          />
-                        </li>
-                      ))
+                      folder.items.map((item) => {
+                        if (isEnrichedItem(item)) {
+                          return (
+                            <li key={item.id}>
+                              <StreamerItem
+                                isNavExpanded={isNavExpanded}
+                                streamer={item}
+                                inFolder={true}
+                              />
+                            </li>
+                          )
+                        }
+                        return (
+                          <li key={item.id}>
+                            <FolderItem folder={item} />
+                          </li>
+                        )
+                      })
                     )}
                   </ul>
                 </SortableContext>

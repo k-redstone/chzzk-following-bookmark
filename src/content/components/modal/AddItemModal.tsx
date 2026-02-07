@@ -1,7 +1,12 @@
 import { Trash, Search, X } from 'lucide-react'
 import { useState } from 'react'
 
-import type { BookmarkItem, BookmarkFolder } from '@/types/bookmark'
+import type {
+  BookmarkItem,
+  BookmarkFolder,
+  EnrichedFolder,
+  EnrichedItem,
+} from '@/types/bookmark'
 import type { IFollowingItem, IChannelContent } from '@/types/follow'
 
 import { DEFAULT_IMAGE_URL } from '@/constants'
@@ -19,7 +24,7 @@ import {
 
 interface IAddItemModalProps {
   handleModalClose: () => void
-  folder?: BookmarkFolder
+  folder?: BookmarkFolder | EnrichedFolder
   root?: BookmarkItem[]
 }
 export default function AddItemModal({
@@ -37,10 +42,18 @@ export default function AddItemModal({
   const [selectedStreamer, setSelectedStreamer] = useState<
     Omit<BookmarkItem, 'id' | 'createdAt' | 'folderId' | 'type'>[]
   >([])
+  const folderItems = folder?.items
+    ? folder.items
+        .filter((item): item is EnrichedItem => item.type === 'item')
+        .map((item) => {
+          const { ...bookmarkItem } = item
+          return bookmarkItem as BookmarkItem
+        })
+    : undefined
 
   const filteredList = filterNotInFolder(
     followData,
-    folder ? folder?.items : root,
+    folder ? folderItems : root,
   )
 
   const searchList = searchStreamerToFollowList(
