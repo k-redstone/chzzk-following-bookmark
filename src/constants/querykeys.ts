@@ -6,6 +6,9 @@ export const queryKeys = {
     followList: () => ['followList'] as const,
   },
 
+  folderState: {
+    map: () => ['folder-state', 'map'] as const,
+  },
   setting: {
     state: () => ['settingState'] as const,
   },

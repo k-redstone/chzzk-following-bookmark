@@ -3,19 +3,9 @@ import type {
   ISettingState,
 } from '@/types/setting'
 
-import { DB_NAME, SETTING_KEY, SETTING_STORE_NAME } from '@/constants'
+import { SETTING_KEY, SETTING_STORE_NAME } from '@/constants'
+import { openDB } from '@/utils/db'
 import { sendRuntimeMessage } from '@/utils/helper'
-
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1)
-    req.onupgradeneeded = () => {
-      req.result.createObjectStore(SETTING_STORE_NAME)
-    }
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error)
-  })
-}
 
 async function getState(): Promise<ISettingState> {
   return openDB().then(

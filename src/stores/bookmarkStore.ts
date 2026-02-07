@@ -4,18 +4,9 @@ import type {
   BookmarkState,
 } from '@/types/bookmark'
 
-import { DB_NAME, KEY, STORE_NAME } from '@/constants'
-
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1)
-    req.onupgradeneeded = () => {
-      req.result.createObjectStore(STORE_NAME)
-    }
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error)
-  })
-}
+import { KEY, STORE_NAME } from '@/constants'
+import { removeFolderState } from '@/stores/folderStateStore'
+import { openDB } from '@/utils/db'
 
 async function getState(): Promise<BookmarkState> {
   return openDB().then(
@@ -147,6 +138,7 @@ export async function removeBookmarkFolder(folderId: string): Promise<boolean> {
   if (idx === -1) return false
   state.root.splice(idx, 1)
   await saveBookmarkState(state)
+  await removeFolderState(folderId)
   return true
 }
 

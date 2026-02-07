@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Folder, FolderOpen } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import type { EnrichedFolder } from '@/types/bookmark'
 
@@ -12,10 +12,12 @@ import AddItemModal from '@/content/components/modal/AddItemModal'
 import DeleteFolderModal from '@/content/components/modal/DeleteFolderModal'
 import EditFolderNameModal from '@/content/components/modal/EditFolderNameModal'
 import useDndStyle from '@/content/hooks/useDndStyle'
+import useFolderStateMap from '@/content/hooks/useFolderStateMap'
 import useModal from '@/content/hooks/useModal'
 import useNavExpanded from '@/content/hooks/useNavExpanded'
 import useRightClickMenu from '@/content/hooks/useRightClickMenu'
 import useShowTooltip from '@/content/hooks/useShowTooltip'
+import { toggleFolderState } from '@/stores/folderStateStore'
 
 interface IFolderItemProps {
   folder: EnrichedFolder
@@ -23,7 +25,25 @@ interface IFolderItemProps {
 
 export default function FolderItem({ folder }: IFolderItemProps) {
   const isNavExpanded = useNavExpanded()
-  const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
+  // const [isOpenFolder, setIsOpenFolder] = useState<boolean>(false)
+
+  const { data: folderStateMap, invalidate } = useFolderStateMap()
+
+  const [isOpenFolder, setIsOpenFolder] = useState<boolean>(
+    folderStateMap?.[folder.id] ?? false,
+  )
+
+  useEffect(() => {
+    if (folderStateMap) {
+      setIsOpenFolder(folderStateMap[folder.id] ?? false)
+    }
+  }, [folderStateMap, folder.id])
+
+  const handleToggle = async () => {
+    const newState = await toggleFolderState(folder.id)
+    setIsOpenFolder(newState)
+    invalidate()
+  }
 
   const {
     attributes,
@@ -92,7 +112,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
         <div className="flex cursor-pointer items-center justify-between">
           <div
             className="dark:hover:bg-bg-04 hover:bg-content-hover-02 relative flex w-full items-center justify-center rounded p-1"
-            onClick={() => setIsOpenFolder(!isOpenFolder)}
+            onClick={handleToggle}
             onMouseEnter={() => {
               openItemTooltip()
               showToolTipSection()
@@ -177,9 +197,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
       >
         <div
           className={`dark:hover:bg-bg-04 dark:bg-bg-01 hover:bg-content-hover-02 flex cursor-pointer items-center justify-between rounded bg-white pt-1 pb-1 pl-1 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
-          onClick={() => {
-            setIsOpenFolder(!isOpenFolder)
-          }}
+          onClick={handleToggle}
           onContextMenu={handleFolderContextMenuOpen}
         >
           <div
