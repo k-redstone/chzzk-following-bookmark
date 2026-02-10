@@ -53,8 +53,10 @@ export default function StreamerItem({
 
   const [isAnyMenuOpen, setIsAnyMenuOpen] = useState(getContextMenuState().open)
 
-  const isLive = streamer.liveInfo.status === 'OPEN'
+  const isLive = streamer.liveInfo?.status === 'OPEN'
   const url = isLive ? `/live/${streamer.hashId}` : `/${streamer.hashId}`
+  const isChannelDeleted = !streamer.liveInfo
+  const displayClass = isChannelDeleted ? 'opacity-50 grayscale' : ''
 
   const animateLayoutChanges: AnimateLayoutChanges = ({
     isSorting,
@@ -122,12 +124,12 @@ export default function StreamerItem({
           />
         )}
         <div
-          className={`relative flex cursor-pointer items-center justify-center py-2 ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
+          className={`relative flex cursor-pointer items-center justify-center py-2 ${displayClass} ${isDragging && `dark:bg-bg-04 bg-content-hover-02 opacity-50`}`}
           ref={setNodeRef}
           style={style}
           {...attributes}
           {...listeners}
-          onClick={(e) => handleMoveToStreamer(e)}
+          onClick={(e) => !isChannelDeleted && handleMoveToStreamer(e)}
           onMouseEnter={() => {
             if (isLive && !isAnyMenuOpen) {
               openItemTooltip()
@@ -149,7 +151,7 @@ export default function StreamerItem({
           onContextMenu={handleContextMenuOpen}
         >
           <div
-            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 hover:ring-4 ${isLive ? `dark:ring-border-chzzk-02 ring-bg-chzzk-light-01` : `dark:ring-bg-02 hover:ring-content-hover-02 dark:hover:ring-bg-03 ring-white grayscale filter`}`}
+            className={`box-border h-8 w-8 overflow-hidden rounded-full ring-2 hover:ring-4 ${isLive ? `dark:ring-border-chzzk-02 ring-bg-chzzk-light-01` : `dark:ring-bg-02 hover:ring-content-hover-02 dark:hover:ring-bg-03 ring-white ${!isChannelDeleted && 'grayscale filter'}`}`}
           >
             <img
               width={26}
@@ -198,8 +200,7 @@ export default function StreamerItem({
         />
       )}
       <div
-        className={`dark:hover:bg-bg-04 hover:bg-content-hover-01 relative flex cursor-pointer items-center rounded p-[5px] ${isDragging && `dark:bg-bg-04 bg-content-02 opacity-50`}`}
-        ref={setNodeRef}
+        className={`dark:hover:bg-bg-04 hover:bg-content-hover-01 relative flex cursor-pointer items-center rounded p-[5px] ${displayClass} ${isDragging && `dark:bg-bg-04 bg-content-02 opacity-50`}`}
         style={style}
         {...attributes}
         {...listeners}
@@ -225,7 +226,7 @@ export default function StreamerItem({
         onContextMenu={handleContextMenuOpen}
       >
         <div
-          className={`h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `dark:border-bg-chzzk-04 border-bg-chzzk-light-01` : `dark:border-bg-02 border-white grayscale filter`}`}
+          className={`h-8 w-8 overflow-hidden rounded-full border-2 ${isLive ? `dark:border-bg-chzzk-04 border-bg-chzzk-light-01` : `dark:border-bg-02 border-white ${!isChannelDeleted && 'grayscale filter'}`}`}
         >
           <img
             width={26}
@@ -242,10 +243,13 @@ export default function StreamerItem({
         <div className="ml-2.5 flex min-w-0 flex-1 flex-col">
           <span className="truncate text-[13px] font-semibold">
             {streamer.name}
+            {isChannelDeleted && (
+              <span className="ml-1 text-[10px] text-gray-500">(삭제됨)</span>
+            )}
           </span>
           {isLive && (
             <span className="text-bg-05 truncate text-[11px] dark:text-gray-400">
-              {streamer.liveInfo.liveCategoryValue}
+              {streamer.liveInfo?.liveCategoryValue}
             </span>
           )}
         </div>
@@ -254,9 +258,9 @@ export default function StreamerItem({
             <span className="text-warn-light text-[18px] leading-none dark:text-[#FF5454]">
               •
             </span>
-            {streamer.liveInfo.concurrentUserCount > 0 && (
+            {(streamer.liveInfo?.concurrentUserCount ?? 0) > 0 && (
               <span className="text-warn-light font-semibold dark:text-[#FF5454]">
-                {streamer.liveInfo.concurrentUserCount.toLocaleString()}
+                {streamer.liveInfo?.concurrentUserCount.toLocaleString()}
               </span>
             )}
           </div>

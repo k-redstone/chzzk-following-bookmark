@@ -26,7 +26,7 @@ export interface BookmarkState {
 
 // bookmark & livestatus 통합
 type EnrichedItem = BookmarkItem & {
-  liveInfo: ILiveContent
+  liveInfo: ILiveContent | undefined
 }
 type EnrichedFolder = Omit<BookmarkFolder, 'items'> & {
   items: Array<EnrichedItem | EnrichedFolder>
