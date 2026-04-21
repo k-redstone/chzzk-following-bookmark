@@ -1,5 +1,5 @@
 import {
-  closestCenter,
+  closestCorners,
   DndContext,
   PointerSensor,
   useSensor,
@@ -19,6 +19,10 @@ import { useEffect, useState } from 'react'
 
 import type { IImportMsg } from '@/types/setting'
 
+import {
+  HEADER_CONTAINER_CLASS,
+  HEADER_SHOW_DIMMED_CLASS,
+} from '@/constants/chzzkEl'
 import BookmarkList from '@/content/components/BookmarkList'
 import AddItemModal from '@/content/components/modal/AddItemModal'
 import CreateFolderModal from '@/content/components/modal/CreateFolderModal'
@@ -39,6 +43,22 @@ export default function App() {
   )
   const { data: bookmarkData, isSuccess, invalidate } = useBookmarkState()
   const queryClient = useQueryClient()
+
+  // 치지직 헤더 높이 가져오기 (좌표 보정용)
+  const getHeaderHeight = (): number => {
+    const header = document.querySelector(`.${HEADER_CONTAINER_CLASS}`)
+    if (!header) return 0
+
+    const hasDimmed = header.classList.contains(HEADER_SHOW_DIMMED_CLASS)
+
+    // dimmed 있고 expanded 열려있을 때만 보정 불필요
+    if (hasDimmed && isNavExpanded) {
+      return 0
+    }
+
+    // 나머지 경우 모두 보정 필요
+    return header.getBoundingClientRect().height ?? 0
+  }
 
   const [isOpenBookmark, setOpenBookbark] = useState<boolean>(true)
   const [isRotating, setIsRotating] = useState<boolean>(false)
@@ -153,8 +173,26 @@ export default function App() {
         isOpenBookmark && (
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={(event) => setActiveId(event.active.id)}
+            collisionDetection={closestCorners}
+            measuring={{
+              draggable: {
+                measure: (element) => {
+                  const rect = element.getBoundingClientRect()
+                  const headerHeight = getHeaderHeight()
+
+                  // 축소 상태에서 헤더 높이만큼 보정
+                  const correctedRect = {
+                    ...rect,
+                    top: rect.top - headerHeight,
+                    bottom: rect.bottom - headerHeight,
+                  }
+                  return correctedRect as DOMRect
+                },
+              },
+            }}
+            onDragStart={(event) => {
+              setActiveId(event.active.id)
+            }}
             onDragEnd={async (event) => {
               await handleDragEnd(event)
               invalidate()

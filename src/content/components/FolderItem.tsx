@@ -1,4 +1,4 @@
-import { useSortable } from '@dnd-kit/sortable'
+import { useSortable, type AnimateLayoutChanges } from '@dnd-kit/sortable'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Folder, FolderOpen } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -47,6 +47,11 @@ export default function FolderItem({ folder }: IFolderItemProps) {
     invalidate()
   }
 
+  const animateLayoutChanges: AnimateLayoutChanges = ({
+    isSorting,
+    wasDragging,
+  }) => (isSorting || wasDragging ? false : true)
+
   const {
     attributes,
     listeners,
@@ -54,7 +59,10 @@ export default function FolderItem({ folder }: IFolderItemProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: folder.id })
+  } = useSortable({
+    id: folder.id,
+    animateLayoutChanges,
+  })
   const {
     open: contextMenuOpen,
     payload,
@@ -138,7 +146,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             if (folder?.type === 'folder') {
               return (
                 <SortableContext
-                  items={folder.items}
+                  items={folder.items.map((item) => item.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <ul className={`flex flex-col`}>
@@ -246,7 +254,7 @@ export default function FolderItem({ folder }: IFolderItemProps) {
             if (folder?.type === 'folder') {
               return (
                 <SortableContext
-                  items={folder.items}
+                  items={folder.items.map((item) => item.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <ul

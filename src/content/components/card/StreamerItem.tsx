@@ -201,6 +201,7 @@ export default function StreamerItem({
       )}
       <div
         className={`dark:hover:bg-bg-04 hover:bg-content-hover-01 relative flex cursor-pointer items-center rounded p-[5px] ${displayClass} ${isDragging && `dark:bg-bg-04 bg-content-02 opacity-50`}`}
+        ref={setNodeRef}
         style={style}
         {...attributes}
         {...listeners}

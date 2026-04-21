@@ -57,7 +57,7 @@ export default function BookmarkList() {
   if (!index || !enrichedRoot || !liveMap) {
     return (
       <SortableContext
-        items={bookmarkData.root}
+        items={bookmarkData.root.map((node) => node.id)}
         strategy={verticalListSortingStrategy}
       >
         <ul className={`flex flex-col`}>
@@ -88,7 +88,7 @@ export default function BookmarkList() {
   } else {
     return (
       <SortableContext
-        items={bookmarkData.root}
+        items={enrichedRoot.map((node) => node.id)}
         strategy={verticalListSortingStrategy}
       >
         <ul className={`flex flex-col`}>
