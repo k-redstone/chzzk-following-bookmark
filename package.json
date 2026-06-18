@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "yarn run build:bridge && vite",
-    "build:bridge": "npx tsup --config tsup.config.bridge.ts",
-    "build": "yarn run build:bridge && vite build",
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -15,6 +14,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.83.0",
+    "hls.js": "^1.6.16",
     "lucide-react": "^0.525.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -35,7 +35,6 @@
     "globals": "^16.3.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "tsup": "^8.5.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
     "vite": "^7.0.4",

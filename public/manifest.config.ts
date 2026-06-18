@@ -20,13 +20,6 @@ export default {
       type: 'module',
     },
 
-    web_accessible_resources: [
-      {
-        resources: ['page-bridge.esm.js'],
-        matches: ['https://chzzk.naver.com/*'],
-      },
-    ],
-
     icons: {
       '48': 'public/icon-48.png',
       '96': 'public/icon-96.png',

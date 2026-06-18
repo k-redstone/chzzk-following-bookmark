@@ -3,11 +3,11 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { IPreviewViewProps } from '@/content/components/PreviewView'
 import type { LiveInfo } from '@/types/preview-bridge'
 
-import { ensurePageBridgeInjected } from '@/bridge/ensurePageBridgeInjected'
 import {
   subscribePopupSettings,
   getPopupSettings,
 } from '@/content/state/PopupSettings'
+import { mountHlsPreview, unmountHlsPreview } from '@/utils/hlsPreview'
 
 type Milliseconds = number
 
@@ -68,16 +68,14 @@ export function usePreview(opts?: InlinePreviewOptions) {
     return () => unsub()
   }, [])
 
-  // page-bridge 주입 + 언마운트 정리
+  // 언마운트 정리
   useEffect(() => {
-    ensurePageBridgeInjected()
-
     return () => {
       if (timers.current.raf) cancelAnimationFrame(timers.current.raf)
       if (timers.current.delay) clearTimeout(timers.current.delay)
       if (timers.current.uptime) clearInterval(timers.current.uptime)
       timers.current.token = null
-      window.dispatchEvent(new CustomEvent('preview:unmount'))
+      unmountHlsPreview()
       setVisible(false)
       setProgressPct(0)
       setUptimeText(undefined)
@@ -89,7 +87,7 @@ export function usePreview(opts?: InlinePreviewOptions) {
     if (timers.current.delay) clearTimeout(timers.current.delay)
     if (timers.current.uptime) clearInterval(timers.current.uptime)
     timers.current.token = null
-    window.dispatchEvent(new CustomEvent('preview:unmount'))
+    unmountHlsPreview()
     setVisible(false)
     setProgressPct(0)
     setUptimeText(undefined)
@@ -134,32 +132,31 @@ export function usePreview(opts?: InlinePreviewOptions) {
 
       timers.current.delay = window.setTimeout(async () => {
         if (timers.current.token !== token) return
-        if (!info.livePlayback) return
+        const livePlayback = info.livePlayback
+        if (!livePlayback) return
 
         await new Promise<void>((resolve) =>
           requestAnimationFrame(() => resolve()),
         )
 
+        if (timers.current.token !== token) return
+        const container = document.getElementById(containerId)
+        if (!container) return
+
         try {
-          window.dispatchEvent(
-            new CustomEvent('preview:mount', {
-              detail: {
-                containerId,
-                livePlayback: info.livePlayback,
-                volume: cfg.volume,
-                width: cfg.width,
-                maxLevel: cfg.maxLevel,
-                token,
-              },
-            }),
-          )
+          mountHlsPreview({
+            container,
+            livePlayback,
+            volume: cfg.volume ?? 0,
+            token,
+          })
           setProgressPct(100)
         } catch {
           // 썸네일만 유지
         }
       }, delay)
     },
-    [cfg.delayMs, cfg.maxLevel, cfg.volume, enabled, containerId],
+    [cfg.delayMs, cfg.volume, enabled, containerId],
   )
 
   const viewProps: IPreviewViewProps = useMemo(
