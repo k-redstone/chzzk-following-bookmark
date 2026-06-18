@@ -1,4 +1,7 @@
-import { CHAT_POWER_QUERY } from '@/constants/chzzkEl'
+import {
+  CHAT_POWER_CONTAINER_QUERY,
+  CHAT_POWER_QUERY,
+} from '@/constants/chzzkEl'
 
 let liveChatObserver: MutationObserver | null = null
 let lastContainer: Element | null = null
@@ -22,9 +25,7 @@ export function enableAutoClickLiveChat() {
   if (liveChatObserver) return
   console.log('debug: 1시간 라이브 시청 인증 자동 클릭 on')
   liveChatObserver = new MutationObserver(() => {
-    const container = document.querySelector(
-      '.live_chatting_power_container__SEJC4',
-    )
+    const container = document.querySelector(CHAT_POWER_CONTAINER_QUERY)
 
     if (container && container !== lastContainer) {
       lastContainer = container

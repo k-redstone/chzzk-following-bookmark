@@ -1,9 +1,15 @@
-export const ASIDE_CONTAINER_CLASS = 'aside_container__R9MN6'
-export const ASIDE_CONTAINER_EXPANDED_CLASS = 'aside_is_expanded__ghOLS'
-export const ASIDE_SHOW_TOOLTIP_CLASS = 'aside_show_tooltip__Ij2rV'
-export const ASIDE_CONTENT_TARGET_CLASS = 'aside_content__j2eTE'
-export const NAV_WRAPPER_CLASS = 'navigation_bar_section__hDpyD'
-export const HEADER_CONTAINER_CLASS = 'header_container__zSx9T'
-export const HEADER_SHOW_DIMMED_CLASS = 'header_show_dimmed__tm1Ia'
+export const ASIDE_CONTAINER_CLASS = '_container_1vdxf_2'
+export const ASIDE_CONTAINER_EXPANDED_CLASS = '_is_expanded_1vdxf_12'
+export const ASIDE_SHOW_TOOLTIP_CLASS = '_show_tooltip_1vdxf_34'
+export const ASIDE_CONTENT_TARGET_CLASS = '_content_1vdxf_30'
+
+export const NAV_WRAPPER_CLASS = '_section_q99ll_26'
+
+export const HEADER_CONTAINER_CLASS = '_container_55vbw_2'
+export const HEADER_SHOW_DIMMED_CLASS = '_is_scrolled_55vbw_12'
+
 export const CHAT_POWER_QUERY =
-  'button.live_chatting_power_button__Ov3eJ[type="button"]'
+  'button[type="button"]:has(svg[class*="icon_power"])'
+
+export const CHAT_POWER_CONTAINER_QUERY =
+  '[class*="_container_"]:has(> button[type="button"] svg[class*="icon_power"])'
