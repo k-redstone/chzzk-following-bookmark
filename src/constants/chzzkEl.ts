@@ -9,7 +9,7 @@ export const HEADER_CONTAINER_CLASS = '_container_55vbw_2'
 export const HEADER_SHOW_DIMMED_CLASS = '_is_scrolled_55vbw_12'
 
 export const CHAT_POWER_QUERY =
-  'button[type="button"]:has(svg[class*="icon_power"])'
+  'button[type="button"]:has(> svg[class*="icon_power"])'
 
 export const CHAT_POWER_CONTAINER_QUERY =
-  '[class*="_container_"]:has(> button[type="button"] svg[class*="icon_power"])'
+  '[class*="_container_"]:has(> button[type="button"] > svg[class*="icon_power"])'
